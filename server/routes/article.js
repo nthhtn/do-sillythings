@@ -3,10 +3,14 @@ import mongoose from 'mongoose';
 import multer from 'multer';
 import path from 'path';
 import bluebird from 'bluebird';
+import fs from 'fs';
+import mkdirp from 'mkdirp';
 
 import Article from '../models/Article'
 import Tag from '../models/Tag';
 import Category from '../models/Category';
+import { encrypt, decrypt } from '../helpers/encryption';
+import { encryptId, isLoggedIn } from '../helpers/middleware';
 
 const router = express.Router();
 
@@ -14,23 +18,37 @@ const UPLOAD_FOLDER = `${__dirname}/../../uploads`;
 
 router.route('/')
 	.post(
+		(req, res, next) => isLoggedIn(req, res, next),
 		multer({
 			storage: multer.diskStorage({
-				destination: path.resolve(UPLOAD_FOLDER, 'img/cover'),
+				destination: path.resolve(UPLOAD_FOLDER, 'img/tmp'),
 				filename: (req, file, callback) => {
 					const imageId = mongoose.Types.ObjectId();
-					const nameArr = file.originalname.split('.');
-					const ext = nameArr[nameArr.length - 1];
+					const filename = file.originalname;
+					const ext = filename.split('.').pop();
 					return callback(null, `${imageId}.${ext}`);
 				}
 			})
 		}).single('file'),
 		async (req, res) => {
 			const { title, content, categoryId, tags } = req.body;
+			const id = mongoose.Types.ObjectId();
+			const encryptedId = encrypt(id.toString());
+			const filename = req.file.filename;
+			const ext = filename.split('.').pop();
+			const encrypted_filename = encrypt(filename + Date.now().toString()) + '.' + ext;
+
+			const oldpath = path.resolve(UPLOAD_FOLDER, 'img/tmp', req.file.filename);
+			const newpath = path.resolve(UPLOAD_FOLDER, `img/${encryptedId}/cover/${encrypted_filename}`);
+
+			mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/${encryptedId}/cover`));
+			fs.renameSync(oldpath, newpath);
+
 			const fields = {
+				_id: id,
 				title,
 				content,
-				coverImg: `/uploads/img/cover/${req.file.filename}`,
+				coverImg: `/uploads/img/${encryptedId}/cover/${encrypted_filename}`,
 				categoryId,
 				authorId: req.user._id
 			};
@@ -42,6 +60,7 @@ router.route('/')
 				newTags.push(newTag);
 			});
 			article = await Article.findByIdAndUpdate(article._id, { tags: newTags.map((item) => (item._id)) }, { new: true });
+
 			return res.json({ success: true, result: article });
 		})
 	.get(async (req, res) => {
@@ -51,7 +70,7 @@ router.route('/')
 		if (req.query.categoryId) {
 			filter_options.categoryId = req.query.categoryId
 		}
-		const result= await Article.find(filter_options).sort({ createdAt: -1 })
+		const result = await Article.find(filter_options).sort({ createdAt: -1 })
 			.skip((page - 1) * limit).limit(limit)
 			.populate({ path: 'authorId', select: 'fullName' })
 			.populate({ path: 'categoryId', select: 'displayName' })
@@ -98,7 +117,7 @@ router.route('/search')
 			const regexFilter = { $regex: new RegExp(keyword, 'gi') };
 			filterOptions['$or'] = [{ title: regexFilter }, { content: regexFilter }];
 		}
-		const resul = await Article.find(filterOptions)
+		const result = await Article.find(filterOptions)
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit).limit(limit)
 			.populate({ path: 'authorId', select: 'fullName' })
@@ -108,14 +127,25 @@ router.route('/search')
 		return res.json({ success: true, result, count });
 	});
 
+
 router.route('/:id')
-	.get(async (req, res) => {
-		const article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
-		return res.json({ success: true, result: article });
-	})
+	.get(
+		// (req, res, next) => encryptId(req, res, next),
+		async (req, res) => {
+			// console.log(req.params.id);
+			// const objectId = decrypt(req.params.id);
+			// console.log(objectId);
+			const article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
+			console.log(article);
+			return res.json({ success: true, result: article });
+		})
 	.put(async (req, res) => {
+		console.log(req.params);
+		console.log(req.body);
 		const { tags } = req.body;
-		let article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
+		// const objectId = decrypt(req.params.id);
+		const objectId = req.params.id;
+		let article = await Article.findOne({ _id: objectId }).populate({ path: 'tags', select: 'tagValue' }).exec();
 		const removeTags = article.tags.filter((tag) => !tags.includes(tag.tagValue));
 		await Tag.updateMany(
 			{ _id: { $in: removeTags.map((tag) => (tag._id)) } },
@@ -130,7 +160,7 @@ router.route('/:id')
 		return res.json({ success: true, result: article });
 	})
 	.delete(async (req, res) => {
-
+		// const objectId = decrypt(req.params.id);
 	});
 
 export default router;

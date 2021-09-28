@@ -43,6 +43,7 @@ export function getArticle(id) {
 };
 
 function updateArticleSuccess(article) {
+	console.log(article);
 	return { type: 'UPDATE_ARTICLE', article };
 };
 
@@ -52,9 +53,10 @@ export function updateArticle(id, article) {
 			credentials: 'same-origin',
 			method: 'put',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ ...article, tags: tags.map((tag) => (tag.tagValue)) })
+			body: JSON.stringify({ ...article, tags: article.tags.map((tag) => (tag.tagValue)) })
 		});
 		const responseJson = await response.json();
+		console.log(responseJson);
 		return dispatch(updateArticleSuccess(responseJson.result));
 	};
 };
