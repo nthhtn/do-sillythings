@@ -48,13 +48,20 @@ function updateArticleSuccess(article) {
 };
 
 export function updateArticle(id, article) {
+	console.log(article);
 	return async (dispatch) => {
-		const response = await fetch(`/api/articles/${id}`, {
-			credentials: 'same-origin',
-			method: 'put',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ ...article, tags: article.tags.map((tag) => (tag.tagValue)) })
-		});
+		let options;
+		if (article.file) {
+			let formdata = new FormData();
+			Object.keys(article).map((key) => key === 'tags' ?
+				formdata.append(key, JSON.stringify(article.tags.map((tag) => (tag.tagValue))))
+				: formdata.append(key, article[key]));
+			options = { credentials: 'same-origin', method: 'put', body: formdata };
+		}
+		else {
+			options = { credentials: 'same-origin', method: 'put', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(article) };
+		}
+		const response = await fetch(`/api/articles/${id}`, options);
 		const responseJson = await response.json();
 		console.log(responseJson);
 		return dispatch(updateArticleSuccess(responseJson.result));

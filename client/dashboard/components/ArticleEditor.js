@@ -85,7 +85,8 @@ export default class ArticleEditor extends Component {
 		if (!title || !content || categoryId == '0') {
 			return $('.input-error').html('Missing required field(s)');
 		}
-		await this.props.dispatch(updateArticle(id, { title, content, file: null, categoryId, tags }));
+		console.log(tags);
+		// await this.props.dispatch(updateArticle(id, { title, content, file: this.state.file, categoryId, tags }));
 		this.setState({ done: true });
 	}
 

@@ -22,6 +22,7 @@ export default class ArticleDetails extends Component {
 
 	render() {
 		const { current } = this.props.article;
+		console.log(current);
 		return (
 			<section className="ftco-section ftco-degree-bg" id="article-details-wrapper">
 				<Helmet>
@@ -42,11 +43,11 @@ export default class ArticleDetails extends Component {
 							</div>
 							<div className="about-author d-flex p-4 bg-light">
 								<div className="bio mr-5">
-									<img src="/assets/explore/images/person_1.jpg" alt="Image placeholder" className="img-fluid mb-4" />
+									<img src={current?.authorId.avatar} alt="Image placeholder" className="img-fluid mb-4" style={{ maxWidth: '200px', resize: 'auto' }} />
 								</div>
 								<div className="desc">
 									<h3>{current?.authorId.fullName}</h3>
-									<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus itaque, autem necessitatibus voluptate quod mollitia delectus aut, sunt placeat nam vero culpa sapiente consectetur similique, inventore eos fugit cupiditate numquam!</p>
+									<p>{current?.authorId.brief}</p>
 								</div>
 							</div>
 						</div>

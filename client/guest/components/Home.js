@@ -62,6 +62,7 @@ export default class Home extends Component {
 	async onPageChange(page) {
 		await this.props.dispatch(listArticles(page, 5));
 		scrollToElement('articles-wrapper');
+		this.setState({ activePage: page });
 	}
 
 	render() {

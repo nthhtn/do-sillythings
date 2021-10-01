@@ -9,12 +9,12 @@ import mkdirp from 'mkdirp';
 import Article from '../models/Article'
 import Tag from '../models/Tag';
 import Category from '../models/Category';
-import { encrypt, decrypt } from '../helpers/encryption';
+import { encrypt, decrypt, truncateEncrypted } from '../helpers/encryption';
 import { encryptId, isLoggedIn } from '../helpers/middleware';
 
-const router = express.Router();
-
 const UPLOAD_FOLDER = `${__dirname}/../../uploads`;
+
+const router = express.Router();
 
 router.route('/')
 	.post(
@@ -33,28 +33,34 @@ router.route('/')
 		async (req, res) => {
 			const { title, content, categoryId, tags } = req.body;
 			const id = mongoose.Types.ObjectId();
-			const encryptedId = encrypt(id.toString());
+			const encryptedId = truncateEncrypted(encrypt(id.toString()));
+
+			// UPLOAD COVER IMAGE
+
 			const filename = req.file.filename;
 			const ext = filename.split('.').pop();
-			const encrypted_filename = encrypt(filename + Date.now().toString()) + '.' + ext;
+			const encrypted_filename = truncateEncrypted(encrypt(filename + Date.now().toString())) + '.' + ext;
 
 			const oldpath = path.resolve(UPLOAD_FOLDER, 'img/tmp', req.file.filename);
-			const newpath = path.resolve(UPLOAD_FOLDER, `img/${encryptedId}/cover/${encrypted_filename}`);
+			const newpath = path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover/${encrypted_filename}`);
 
-			mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/${encryptedId}/cover`));
+			mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover`));
 			fs.renameSync(oldpath, newpath);
 
 			const fields = {
 				_id: id,
 				title,
 				content,
-				coverImg: `/uploads/img/${encryptedId}/cover/${encrypted_filename}`,
+				coverImg: `/uploads/img/articles/${encryptedId}/cover/${encrypted_filename}`,
 				categoryId,
 				authorId: req.user._id
 			};
 			let article = new Article(fields);
 			await article.save();
 			let newTags = [];
+
+			// HANDLE TAGS
+
 			await bluebird.map(JSON.parse(tags), async (tag) => {
 				const newTag = await Tag.findOneAndUpdate({ tagValue: tag }, { $addToSet: { articles: article._id } }, { upsert: true, new: true });
 				newTags.push(newTag);
@@ -83,7 +89,7 @@ router.route('/title/:title')
 	.get(async (req, res) => {
 		const article = await Article.findOne({ title: req.params.title })
 			.populate({ path: 'tags', select: 'tagValue' })
-			.populate({ path: 'authorId', select: 'fullName' })
+			.populate({ path: 'authorId', select: ['fullName', 'brief', 'avatar'] })
 			.populate({ path: 'categoryId', select: 'displayName' })
 			.exec();
 		return res.json({ success: true, result: article });
@@ -136,29 +142,68 @@ router.route('/:id')
 			// const objectId = decrypt(req.params.id);
 			// console.log(objectId);
 			const article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
-			console.log(article);
+			// console.log(article);
 			return res.json({ success: true, result: article });
 		})
-	.put(async (req, res) => {
-		console.log(req.params);
-		console.log(req.body);
-		const { tags } = req.body;
-		// const objectId = decrypt(req.params.id);
-		const objectId = req.params.id;
-		let article = await Article.findOne({ _id: objectId }).populate({ path: 'tags', select: 'tagValue' }).exec();
-		const removeTags = article.tags.filter((tag) => !tags.includes(tag.tagValue));
-		await Tag.updateMany(
-			{ _id: { $in: removeTags.map((tag) => (tag._id)) } },
-			{ $pull: { articles: [req.params.id] } }
-		);
-		let addTags = [];
-		await bluebird.map(tags, async (tag) => {
-			const newTag = await Tag.findOneAndUpdate({ tagValue: tag }, { $addToSet: { articles: article._id } }, { upsert: true, new: true });
-			addTags.push(newTag);
-		});
-		article = await Article.findByIdAndUpdate(article._id, { ...req.body, tags: addTags.map((item) => (item._id)) }, { new: true });
-		return res.json({ success: true, result: article });
-	})
+	.put(
+		(req, res, next) => isLoggedIn(req, res, next),
+		multer({
+			storage: multer.diskStorage({
+				destination: path.resolve(UPLOAD_FOLDER, 'img/tmp'),
+				filename: (req, file, callback) => {
+					const imageId = mongoose.Types.ObjectId();
+					const filename = file.originalname;
+					const ext = filename.split('.').pop();
+					return callback(null, `${imageId}.${ext}`);
+				}
+			})
+		}).single('file'),
+		async (req, res) => {
+			const { tags } = req.body;
+			console.log(tags);
+			// const objectId = decrypt(req.params.id);
+			const objectId = req.params.id;
+			let article = await Article.findOne({ _id: objectId }).populate({ path: 'tags', select: 'tagValue' }).exec();
+			// HANDLE TAGS
+			const removeTags = article.tags.filter((tag) => !tags.includes(tag.tagValue));
+			// console.log(removeTags);
+			const conditions = { tagValue: { $in: removeTags.map((tag) => (tag.tagValue)) } };
+			// console.log(conditions);
+			const options = { $pull: { articles: { $in: [mongoose.Types.ObjectId(objectId)] } } };
+			const matchedTags = await Tag.find(conditions);
+			// console.log(matchedTags);
+			const removed = await Tag.updateMany(conditions, options);
+			// console.log(removed);
+			let addTags = [];
+			await bluebird.map(tags, async (tag) => {
+				const newTag = await Tag.findOneAndUpdate({ tagValue: tag.tagValue }, { $addToSet: { articles: objectId } }, { upsert: true, new: true });
+				addTags.push(newTag);
+			});
+
+			let data = { ...req.body, tags: addTags.map((item) => (item._id)) };
+			console.log(data);
+			// UPLOAD COVER IMAGE
+			console.log(req.file);
+			if (req.file) {
+				const encryptedId = truncateEncrypted(encrypt(objectId));
+				const filename = req.file.filename;
+				const ext = filename.split('.').pop();
+				const encrypted_filename = truncateEncrypted(encrypt(filename + Date.now().toString())) + '.' + ext;
+
+				const oldpath = path.resolve(UPLOAD_FOLDER, 'img/tmp', req.file.filename);
+				const newpath = path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover/${encrypted_filename}`);
+
+				mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover`));
+				fs.renameSync(oldpath, newpath);
+
+				data.coverImg = `/uploads/img/articles/${encryptedId}/cover/${encrypted_filename}`;
+			}
+
+			console.log(data);
+
+			article = await Article.findByIdAndUpdate(article._id, data, { new: true });
+			return res.json({ success: true, result: article });
+		})
 	.delete(async (req, res) => {
 		// const objectId = decrypt(req.params.id);
 	});

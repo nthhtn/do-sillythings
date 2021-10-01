@@ -50,7 +50,7 @@ export default class About extends Component {
 								&nbsp;- đâu thể cứ giống nhau…&nbsp;</p>
 							<p><br /><br /></p>
 							<p>Sillything là thế, là đứa trẻ ngô nghê của hai đứa đang chập chững học yêu…</p>
-							<p><em>“Two silly person, some silly things, many silly moments, with one silly love”</em></p>
+							<p><em>“Two silly persons, some silly things, many silly moments, with one silly love”</em></p>
 							<p>&nbsp;</p>
 							<p>Best time, enjoy our words!</p>
 							<p>02022020</p>
