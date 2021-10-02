@@ -17,7 +17,6 @@ router.use((req, res, next) => isLoggedIn(req, res, next));
 
 router.route('/me')
 	.get(async (req, res) => {
-		console.log(req.user);
 		const { _id, username, email, fullName, brief, avatar } = req.user;
 		return res.json({ success: true, result: { username, email, fullName, brief, avatar } });
 	})
@@ -38,9 +37,12 @@ router.route('/me')
 			const { fullName, brief, oldpass, newpass } = req.body;
 			let data = { fullName, brief };
 			if (oldpass && newpass) {
-				console.log(hashPassword(oldpass, salt));
 				console.log(password);
-				if (hashPassword(oldpass, salt) !== password) {
+				console.log(hashPassword(oldpass, salt));
+				console.log(hashPassword(oldpass, salt) == password);
+				console.log(hashPassword(oldpass, salt) != password);
+				console.log(hashPassword(oldpass, salt) !== password);
+				if (hashPassword(oldpass, salt) != password) {
 					return res.status(400).json({ success: false, error: 'Wrong current password!' });
 				}
 				data.password = hashPassword(newpass, salt);
@@ -63,20 +65,27 @@ router.route('/me')
 
 			const result = await User.findByIdAndUpdate(_id, data);
 
-			console.log(result);
-
-			if (data.password) {
-				req.user = { ...req.user, ...data };
-			}
-
 			let returnedResult = { fullName, brief };
 			if (!!data.avatar) {
 				returnedResult.avatar = data.avatar;
 			}
 
-			console.log(returnedResult);
+			let session_data = { ...req.user, ...returnedResult };
+			if (data.password) {
+				session_data.password = data.password;
+			}
 
-			return res.json({ success: true, result: returnedResult });
+			console.log('Before');
+			console.log(req.user);
+
+			console.log('Data');
+			console.log(session_data);
+
+			req.login(session_data, (err) => {
+				console.log('After');
+				console.log(req.user);
+				return res.json({ success: true, result: returnedResult });
+			});
 		});
 
 export default router;

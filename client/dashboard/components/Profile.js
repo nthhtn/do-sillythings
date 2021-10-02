@@ -25,7 +25,6 @@ export default class Profile extends Component {
 	async componentDidMount() {
 		await this.props.dispatch(getMyProfile());
 		const { me } = this.props.user;
-		console.log(me);
 		$('#input-name').val(me.fullName);
 		$('#input-email').val(me.email);
 		$('#input-brief').val(me.brief);
@@ -52,7 +51,6 @@ export default class Profile extends Component {
 			profile.file = this.state.file;
 		}
 		$('.input-error').html('');
-		console.log(profile);
 		await this.props.dispatch(updateMyProfile(profile));
 		const { error } = this.props.user;
 		if (error) {

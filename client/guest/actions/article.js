@@ -16,7 +16,6 @@ function getArticleByTitleSuccess(article) {
 
 export function getArticleByTitle(title) {
 	return async (dispatch) => {
-		console.log(title);
 		const response = await fetch(`/api/articles/title/${title}`, { credentials: 'same-origin' });
 		const responseJson = await response.json();
 		return dispatch(getArticleByTitleSuccess(responseJson.result));

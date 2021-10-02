@@ -138,11 +138,7 @@ router.route('/:id')
 	.get(
 		// (req, res, next) => encryptId(req, res, next),
 		async (req, res) => {
-			// console.log(req.params.id);
-			// const objectId = decrypt(req.params.id);
-			// console.log(objectId);
 			const article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
-			// console.log(article);
 			return res.json({ success: true, result: article });
 		})
 	.put(
@@ -159,31 +155,24 @@ router.route('/:id')
 			})
 		}).single('file'),
 		async (req, res) => {
-			const { tags } = req.body;
-			console.log(tags);
+			const tags = !Array.isArray(req.body.tags) ? JSON.parse(req.body.tags) : req.body.tags;
 			// const objectId = decrypt(req.params.id);
 			const objectId = req.params.id;
 			let article = await Article.findOne({ _id: objectId }).populate({ path: 'tags', select: 'tagValue' }).exec();
 			// HANDLE TAGS
 			const removeTags = article.tags.filter((tag) => !tags.includes(tag.tagValue));
-			// console.log(removeTags);
 			const conditions = { tagValue: { $in: removeTags.map((tag) => (tag.tagValue)) } };
-			// console.log(conditions);
 			const options = { $pull: { articles: { $in: [mongoose.Types.ObjectId(objectId)] } } };
-			const matchedTags = await Tag.find(conditions);
-			// console.log(matchedTags);
 			const removed = await Tag.updateMany(conditions, options);
 			// console.log(removed);
 			let addTags = [];
 			await bluebird.map(tags, async (tag) => {
-				const newTag = await Tag.findOneAndUpdate({ tagValue: tag.tagValue }, { $addToSet: { articles: objectId } }, { upsert: true, new: true });
+				const newTag = await Tag.findOneAndUpdate({ tagValue: tag }, { $addToSet: { articles: objectId } }, { upsert: true, new: true });
 				addTags.push(newTag);
 			});
 
 			let data = { ...req.body, tags: addTags.map((item) => (item._id)) };
-			console.log(data);
 			// UPLOAD COVER IMAGE
-			console.log(req.file);
 			if (req.file) {
 				const encryptedId = truncateEncrypted(encrypt(objectId));
 				const filename = req.file.filename;
@@ -199,9 +188,11 @@ router.route('/:id')
 				data.coverImg = `/uploads/img/articles/${encryptedId}/cover/${encrypted_filename}`;
 			}
 
-			console.log(data);
+			article = await Article.findByIdAndUpdate(article._id, data, { new: true })
+				.populate({ path: 'tags', select: 'tagValue' })
+				.populate({ path: 'authorId', select: ['fullName', 'brief', 'avatar'] })
+				.populate({ path: 'categoryId', select: 'displayName' })
 
-			article = await Article.findByIdAndUpdate(article._id, data, { new: true });
 			return res.json({ success: true, result: article });
 		})
 	.delete(async (req, res) => {

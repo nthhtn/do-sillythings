@@ -126,7 +126,7 @@ store.dispatch(getMyProfile())
 							<div className="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true"
 								style={{ height: '962px' }}>
 								<div className="col-md-9 ftco-animate text-center" data-scrollax="properties: { translateY: '70%' }">
-									<h1 className="mb-4" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Two silly person</h1>
+									<h1 className="mb-4" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Two silly persons</h1>
 									<p data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Some silly things, many silly moments, with one silly love</p>
 								</div>
 							</div>

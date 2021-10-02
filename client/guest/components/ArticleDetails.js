@@ -22,7 +22,6 @@ export default class ArticleDetails extends Component {
 
 	render() {
 		const { current } = this.props.article;
-		console.log(current);
 		return (
 			<section className="ftco-section ftco-degree-bg" id="article-details-wrapper">
 				<Helmet>

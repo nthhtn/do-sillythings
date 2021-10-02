@@ -43,12 +43,10 @@ export function getArticle(id) {
 };
 
 function updateArticleSuccess(article) {
-	console.log(article);
 	return { type: 'UPDATE_ARTICLE', article };
 };
 
 export function updateArticle(id, article) {
-	console.log(article);
 	return async (dispatch) => {
 		let options;
 		if (article.file) {
@@ -59,11 +57,11 @@ export function updateArticle(id, article) {
 			options = { credentials: 'same-origin', method: 'put', body: formdata };
 		}
 		else {
+			article.tags = article.tags.map((tag) => (tag.tagValue));
 			options = { credentials: 'same-origin', method: 'put', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(article) };
 		}
 		const response = await fetch(`/api/articles/${id}`, options);
 		const responseJson = await response.json();
-		console.log(responseJson);
 		return dispatch(updateArticleSuccess(responseJson.result));
 	};
 };
