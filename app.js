@@ -12,7 +12,7 @@ import { SESSION_SECRET } from './config/secret';
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/assets', express.static(`${__dirname}/static`));
