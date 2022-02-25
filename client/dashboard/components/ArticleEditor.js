@@ -1,10 +1,7 @@
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'sweetalert2/dist/sweetalert2.css';
 
 import React, { Component } from 'react';
-import { Editor } from 'react-draft-wysiwyg';
-import { EditorState, ContentState, convertFromHTML } from 'draft-js';
-import { stateToHTML } from 'draft-js-export-html';
+import { Editor } from '@tinymce/tinymce-react';
 import { Typeahead, TypeaheadMenu } from 'react-bootstrap-typeahead';
 import { Redirect } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -16,14 +13,12 @@ export default class ArticleEditor extends Component {
 
 	constructor(props) {
 		super(props);
-		const { contentBlocks, entityMap } = convertFromHTML(this.props.content || '');
-		const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
 		const id = this.props.match?.params?.id;
 		const articleId = !!id && id != 'new' ? id : null;
 		this.state = {
 			articleId,
 			new: articleId == null,
-			editorState: EditorState.createWithContent(contentState),
+			content: '',
 			coverImg: '',
 			file: null,
 			tagOptions: [],
@@ -37,10 +32,8 @@ export default class ArticleEditor extends Component {
 		if (!this.state.new) {
 			await this.props.dispatch(getArticle(this.props.match.params.id));
 			const { current } = this.props.article;
-			const { contentBlocks, entityMap } = convertFromHTML(current.content || '');
-			const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
 			this.setState({
-				editorState: EditorState.createWithContent(contentState),
+				content: current?.content || '',
 				coverImg: current?.coverImg,
 				tagOptions: current?.tags,
 				tagSelected: current?.tags
@@ -50,8 +43,9 @@ export default class ArticleEditor extends Component {
 		}
 	}
 
-	onEditorChange(editorState) {
-		this.setState({ editorState });
+	onEditorChange(e) {
+		// this.setState({ content: e.target.getContent() });
+		this.refs.inputContent.currentContent = e.target.getContent();
 	}
 
 	previewCoverImg(e) {
@@ -61,8 +55,7 @@ export default class ArticleEditor extends Component {
 
 	async createArticle() {
 		const title = $('#input-title').val().trim();
-		const contentState = this.state.editorState.getCurrentContent();
-		const content = stateToHTML(contentState);
+		const content = this.refs.inputContent.currentContent;
 		const file = this.state.file;
 		const categoryId = $('#input-category').val().trim();
 		const tags = this.state.tagSelected;
@@ -78,8 +71,7 @@ export default class ArticleEditor extends Component {
 	async updateArticle() {
 		const id = this.state.articleId;
 		const title = $('#input-title').val().trim();
-		const contentState = this.state.editorState.getCurrentContent();
-		const content = stateToHTML(contentState);
+		const content = this.refs.inputContent.currentContent;
 		const categoryId = $('#input-category').val().trim();
 		const tags = this.state.tagSelected;
 		if (!title || !content || categoryId == '0') {
@@ -151,16 +143,71 @@ export default class ArticleEditor extends Component {
 										<input type="text" className="form-control" id="input-title" placeholder="Title" />
 									</div>
 									<Editor
-										wrapperClassName="wrapper-class"
-										editorClassName="editor-class"
-										toolbarClassName="toolbar-class"
-										editorStyle={{
-											padding: "0 12px", borderRadius: "2px", border: "1px solid #F1F1F1",
-											minHeight: "500px", maxHeight: "800px"
+										initialValue={this.state.content}
+										init={{
+											selector: 'textarea#open-source-plugins',
+											plugins: 'preview paste importcss searchreplace autolink autosave directionality code visualblocks visualchars fullscreen image link media codesample table charmap hr nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+											menubar: 'file edit view insert format tools table help',
+											toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+											toolbar_sticky: true,
+											autosave_ask_before_unload: true,
+											autosave_interval: '30s',
+											autosave_prefix: '{path}{query}-{id}-',
+											autosave_restore_when_empty: false,
+											autosave_retention: '2m',
+											image_advtab: true,
+											importcss_append: true,
+											file_picker_callback: function (callback, value, meta) {
+												var input = document.createElement('input');
+												input.setAttribute('type', 'file');
+												input.setAttribute('accept', 'image/*');
+
+												/*
+												  Note: In modern browsers input[type="file"] is functional without
+												  even adding it to the DOM, but that might not be the case in some older
+												  or quirky browsers like IE, so you might want to add it to the DOM
+												  just in case, and visually hide it. And do not forget do remove it
+												  once you do not need it anymore.
+												*/
+
+												input.onchange = function () {
+													var file = this.files[0];
+
+													var reader = new FileReader();
+													reader.onload = function () {
+														/*
+														  Note: Now we need to register the blob in TinyMCEs image blob
+														  registry. In the next release this part hopefully won't be
+														  necessary, as we are looking to handle it internally.
+														*/
+														var id = 'blobid' + (new Date()).getTime();
+														var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+														var base64 = reader.result.split(',')[1];
+														var blobInfo = blobCache.create(id, file, base64);
+														blobCache.add(blobInfo);
+
+														/* call the callback and populate the Title field with the file name */
+														callback(blobInfo.blobUri(), { title: file.name });
+													};
+													reader.readAsDataURL(file);
+												};
+
+												input.click();
+											},
+											template_cdate_format: '[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]',
+											template_mdate_format: '[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]',
+											height: 600,
+											image_caption: true,
+											quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+											noneditable_noneditable_class: 'mceNonEditable',
+											toolbar_mode: 'sliding',
+											contextmenu: 'link image imagetools table',
+											skin: 'oxide',
+											content_css: 'default',
+											content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
 										}}
-										editorState={editorState}
-										ref='contentEditor'
-										onEditorStateChange={this.onEditorChange.bind(this)}
+										onChange={this.onEditorChange.bind(this)}
+										ref='inputContent'
 									/>
 									<div className="row">
 										<div className="form-group col-md-12">

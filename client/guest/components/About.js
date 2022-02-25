@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet';
 
-import { scrollToElement } from '../helper';
+import { scrollToElement } from '../helpers';
 
 export default class About extends Component {
 
