@@ -28,7 +28,7 @@ export default class ArticleItem extends Component {
 						<div className="author mb-4 d-flex align-items-center">
 							<Link to="#" className="img" style={{ backgroundImage: 'url("/assets/explore/images/person_1.jpg")' }}></Link>
 							<div className="ml-3 info">
-								<h3><Link to="#">{authorId?.fullName}</Link>, <span>{createdAt}</span></h3>
+								<h3><Link to="#">{authorId?.fullName}</Link>, <span>{$.format.date(createdAt, "dd/MM/yyyy")}</span></h3>
 							</div>
 						</div>
 						<div className="meta-wrap d-md-flex align-items-center">

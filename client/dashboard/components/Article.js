@@ -4,6 +4,7 @@ import Pagination from 'react-js-pagination';
 import { Link, Redirect } from 'react-router-dom';
 
 import { listArticles } from '../actions/article';
+import { getBriefHtmlContent } from '../helpers';
 
 export default class Article extends Component {
 
@@ -31,9 +32,8 @@ export default class Article extends Component {
 			return <Redirect to={this.state.editorUrl} />
 		}
 		const list = this.props.article.list.map((item) => {
-			let span = document.createElement('span');
-			span.innerHTML = item.content;
-			item.content = span.innerText;
+			item.content = getBriefHtmlContent(item.content);
+			item.createdAt = $.format.date(item.createdAt, "hh:mm dd/MM/yyyy");
 			return item;
 		});
 		const showCategoryDisplayName = (cell, row) => {
