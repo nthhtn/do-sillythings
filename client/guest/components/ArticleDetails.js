@@ -3,7 +3,7 @@ import ReactHtmlParser from 'react-html-parser';
 import { Helmet } from 'react-helmet';
 
 import { getArticleByTitle } from '../actions/article';
-import { scrollToElement } from '../helper';
+import { scrollToElement } from '../helpers';
 import Sidebar from './Sidebar';
 
 export default class ArticleDetails extends Component {
