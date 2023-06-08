@@ -78,7 +78,7 @@ router.route('/')
 		}
 		const result = await Article.find(filter_options).sort({ createdAt: -1 })
 			.skip((page - 1) * limit).limit(limit)
-			.populate({ path: 'authorId', select: 'fullName' })
+			.populate({ path: 'authorId', select: ['fullName', 'avatar'] })
 			.populate({ path: 'categoryId', select: 'displayName' })
 			.exec();
 		const count = await Article.countDocuments({});
