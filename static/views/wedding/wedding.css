@@ -1,0 +1,50 @@
+@font-face {
+	font-family: 'Sacramento';
+	src: url('Sacramento-Regular.eot');
+	src: url('Sacramento-Regular.eot?#iefix') format('embedded-opentype'),
+		url('Sacramento-Regular.woff2') format('woff2'),
+		url('Sacramento-Regular.woff') format('woff'),
+		url('Sacramento-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+.fh5co-nav #fh5co-logo {
+	font-size: 40px;
+	margin: 0;
+	padding: 0;
+	line-height: 40px;
+	font-family: 'Sacramento';
+}
+
+#fh5co-header .display-tc h1,
+#fh5co-counter .display-tc h1,
+.fh5co-cover .display-tc h1 {
+	margin-bottom: 0px;
+	font-size: 100px;
+	line-height: 1.5;
+	font-family: 'Sacramento';
+}
+
+.couple-half h3 {
+	font-family: 'Sacramento';
+	color: #F14E95;
+	font-size: 30px;
+}
+
+.fh5co-heading h2 {
+	font-size: 60px;
+	margin-bottom: 10px;
+	line-height: 1.5;
+	font-weight: bold;
+	color: #F14E95;
+	font-family: 'Sacramento';
+}
+
+/* Typography color: #C79668
+Overlay background: #FDF2DB
+Simply background: #808D89
+
+Wedding events: Engagement & Wedding
+ */

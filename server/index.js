@@ -3,6 +3,7 @@ import path from "path";
 import CategoryRouter from "./routes/category";
 import UserRouter from "./routes/user";
 import ArticleRouter from "./routes/article";
+import WeddingRouter from './routes/wedding';
 import UnauthenticatedRouter from "./routes/unauthenticated";
 import { generateCategories } from "./helpers/initializer";
 
@@ -15,10 +16,12 @@ module.exports = async (app, db) => {
 	app.use("/api/users", UserRouter);
 	app.use("/api/articles", ArticleRouter);
 
-	app.route("/wedding").get((req, res) => {
-		const viewpath = path.resolve(VIEW_FOLDER, "wedding.html");
-		return res.sendFile(viewpath);
-	});
+	// app.route("/wedding").get((req, res) => {
+	// 	const viewpath = path.resolve(VIEW_FOLDER, "wedding.html");
+	// 	return res.sendFile(viewpath);
+	// });
+
+	app.use("/wedding", WeddingRouter);
 
 	app.use("/", UnauthenticatedRouter);
 
