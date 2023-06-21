@@ -61,7 +61,8 @@
 	<link rel="stylesheet" href="/assets/wedding/css/style.css" />
 
 	<!-- Custom style  -->
-	<link rel="stylesheet" href="/assets/views/wedding/wedding.css" />
+	<link rel="stylesheet" href="/assets/views/wedding/wedding_override.css" />
+	<link rel="stylesheet" href="/assets/views/wedding/wedding_custom.css" />
 
 	<!-- Modernizr JS -->
 	<script src="/assets/wedding/js/modernizr-2.6.2.min.js"></script>
@@ -81,31 +82,16 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-xs-2">
-						<div id="fh5co-logo"><a href="index.html">Wedding<strong>.</strong></a></div>
+						<div id="fh5co-logo"><a href="#">Our Logo</a></div>
 					</div>
 					<div class="col-xs-10 text-right menu-1">
 						<ul>
-							<li class="active"><a href="index.html">Home</a></li>
-							<li><a href="about.html">Story</a></li>
-							<li class="has-dropdown">
-								<a href="services.html">Services</a>
-								<ul class="dropdown">
-									<li><a href="#">Web Design</a></li>
-									<li><a href="#">eCommerce</a></li>
-									<li><a href="#">Branding</a></li>
-									<li><a href="#">API</a></li>
-								</ul>
-							</li>
-							<li class="has-dropdown">
-								<a href="gallery.html">Gallery</a>
-								<ul class="dropdown">
-									<li><a href="#">HTML5</a></li>
-									<li><a href="#">CSS3</a></li>
-									<li><a href="#">Sass</a></li>
-									<li><a href="#">jQuery</a></li>
-								</ul>
-							</li>
-							<li><a href="contact.html">Contact</a></li>
+							<li><a href="#fh5co-couple">Couple</a></li>
+							<li><a href="#fh5co-event">Events</a></li>
+							<li><a href="#fh5co-couple-story">Story</a></li>
+							<li><a href="#fh5co-gallery">Gallery</a></li>
+							<li><a href="#fh5co-testimonial">Wishes</a></li>
+							<li><a href="#fh5co-started">Attendance</a></li>
 						</ul>
 					</div>
 				</div>
@@ -143,9 +129,7 @@
 				</div>
 				<div class="couple-wrap animate-box">
 					<div class="couple-half">
-						<div class="groom">
-							<img src="/assets/wedding/images/groom.jpg" alt="groom" class="img-responsive">
-						</div>
+						<div class="groom" style="background-image: url('/assets/img/wedding/groom.jpg');"></div>
 						<div class="desc-groom">
 							<h3>Thế Hiển</h3>
 							<p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia,
@@ -154,9 +138,7 @@
 					</div>
 					<p class="heart text-center"><i class="icon-heart2"></i></p>
 					<div class="couple-half">
-						<div class="bride">
-							<img src="/assets/wedding/images/bride.jpg" alt="groom" class="img-responsive">
-						</div>
+						<div class="bride" style="background-image: url('/assets/img/wedding/bride.jpg');"></div>
 						<div class="desc-bride">
 							<h3>Hương Uyên</h3>
 							<p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia,
@@ -240,7 +222,7 @@
 						<ul class="timeline animate-box">
 							<li class="animate-box">
 								<div class="timeline-badge"
-									style="background-image:url(/assets/wedding/images/couple-1.jpg);"></div>
+									style="background-image:url(/assets/img/wedding/concept1.jpg);"></div>
 								<div class="timeline-panel">
 									<div class="timeline-heading">
 										<h3 class="timeline-title">First Meet</h3>
@@ -256,7 +238,7 @@
 							</li>
 							<li class="timeline-inverted animate-box">
 								<div class="timeline-badge"
-									style="background-image:url(/assets/wedding/images/couple-2.jpg);"></div>
+									style="background-image:url(/assets/img/wedding/concept1.jpg);"></div>
 								<div class="timeline-panel">
 									<div class="timeline-heading">
 										<h3 class="timeline-title">In Relationship</h3>
@@ -272,7 +254,7 @@
 							</li>
 							<li class="animate-box">
 								<div class="timeline-badge"
-									style="background-image:url(/assets/wedding/images/couple-3.jpg);"></div>
+									style="background-image:url(/assets/img/wedding/concept1.jpg);"></div>
 								<div class="timeline-panel">
 									<div class="timeline-heading">
 										<h3 class="timeline-title">Long Distance Love</h3>
@@ -288,7 +270,7 @@
 							</li>
 							<li class="timeline-inverted animate-box">
 								<div class="timeline-badge"
-									style="background-image:url(/assets/wedding/images/couple-2.jpg);"></div>
+									style="background-image:url(/assets/img/wedding/concept4.jpg);"></div>
 								<div class="timeline-panel">
 									<div class="timeline-heading">
 										<h3 class="timeline-title">Proposal</h3>
@@ -304,7 +286,7 @@
 							</li>
 							<li class="animate-box">
 								<div class="timeline-badge"
-									style="background-image:url(/assets/wedding/images/couple-3.jpg);"></div>
+									style="background-image:url(/assets/img/wedding/concept5.jpg);"></div>
 								<div class="timeline-panel">
 									<div class="timeline-heading">
 										<h3 class="timeline-title">Wedding</h3>
@@ -339,7 +321,7 @@
 						<ul id="fh5co-gallery-list">
 
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-1.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept1.jpg); ">
 								<a href="images/gallery-1.jpg">
 									<div class="case-studies-summary">
 										<span>14 Photos</span>
@@ -348,7 +330,7 @@
 								</a>
 							</li>
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-2.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept4.jpg); ">
 								<a href="#" class="color-2">
 									<div class="case-studies-summary">
 										<span>30 Photos</span>
@@ -359,7 +341,7 @@
 
 
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-3.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept5.jpg); ">
 								<a href="#" class="color-3">
 									<div class="case-studies-summary">
 										<span>90 Photos</span>
@@ -368,7 +350,7 @@
 								</a>
 							</li>
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-4.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept1.jpg); ">
 								<a href="#" class="color-4">
 									<div class="case-studies-summary">
 										<span>12 Photos</span>
@@ -378,7 +360,7 @@
 							</li>
 
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-5.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept4.jpg); ">
 								<a href="#" class="color-3">
 									<div class="case-studies-summary">
 										<span>50 Photos</span>
@@ -387,7 +369,7 @@
 								</a>
 							</li>
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-6.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept5.jpg); ">
 								<a href="#" class="color-4">
 									<div class="case-studies-summary">
 										<span>45 Photos</span>
@@ -397,7 +379,7 @@
 							</li>
 
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-7.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept1.jpg); ">
 								<a href="#" class="color-4">
 									<div class="case-studies-summary">
 										<span>35 Photos</span>
@@ -407,7 +389,7 @@
 							</li>
 
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-8.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept4.jpg); ">
 								<a href="#" class="color-5">
 									<div class="case-studies-summary">
 										<span>90 Photos</span>
@@ -416,7 +398,7 @@
 								</a>
 							</li>
 							<li class="one-third animate-box" data-animate-effect="fadeIn"
-								style="background-image: url(/assets/wedding/images/gallery-9.jpg); ">
+								style="background-image: url(/assets/img/wedding/concept5.jpg); ">
 								<a href="#" class="color-6">
 									<div class="case-studies-summary">
 										<span>56 Photos</span>

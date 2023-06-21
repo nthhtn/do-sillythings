@@ -1,0 +1,22 @@
+/* Typography color: #C79668
+Overlay background: #FDF2DB
+Simply background: #808D89
+ */
+
+html {
+	scroll-behavior: smooth;
+}
+
+.couple-half .groom, .couple-half .bride{
+	background-position: bottom center;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+.fh5co-cover .overlay {
+	/* background-color: #FDF2DB; */
+	background-image: url('/assets/img/wedding/concept1.jpg');
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
