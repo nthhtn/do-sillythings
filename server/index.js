@@ -7,6 +7,8 @@ import WeddingRouter from './routes/wedding';
 import UnauthenticatedRouter from "./routes/unauthenticated";
 import { generateCategories } from "./helpers/initializer";
 
+// require('./helpers/google');
+
 const VIEW_FOLDER = `${__dirname}/../static/views`;
 
 module.exports = async (app, db) => {

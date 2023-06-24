@@ -82,6 +82,7 @@ store.dispatch(getMyProfile())
 								<span className="oi oi-menu"></span> Menu</button>
 							<div className="collapse navbar-collapse" id="ftco-nav">
 								<ul className="navbar-nav ml-auto">
+								<li className="nav-item"><a href="/wedding" className="nav-link">Wedding</a></li>
 									<li className="nav-item"><a href="/" className="nav-link">Home</a></li>
 									<li className="nav-item dropdown">
 										<a className="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Our diary</a>
