@@ -7,7 +7,22 @@ html {
 	scroll-behavior: smooth;
 }
 
-.couple-half .groom, .couple-half .bride{
+.fh5co-nav #fh5co-logo {
+	font-size: 24px;
+}
+
+.couple-title {
+	padding-bottom: 300px !important;
+}
+
+#fh5co-header .display-tc h1,
+#fh5co-counter .display-tc h1,
+.fh5co-cover .display-tc h1 {
+	font-size: 60px;
+}
+
+.couple-half .groom,
+.couple-half .bride {
 	background-position: bottom center;
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -19,4 +34,85 @@ html {
 	background-position: center;
 	background-size: cover;
 	background-repeat: no-repeat;
+}
+
+#form-attendance .select-wrapper {
+	position: relative;
+}
+
+#form-attendance .select-wrapper::after {
+	content: "▼";
+	top: 20%;
+	right: 10px;
+	position: absolute;
+	color: #fff;
+}
+
+#form-attendance .select-wrapper select {
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#form-attendance #submit-attendance {
+	width: 30%;
+	margin: 30px auto;
+}
+
+/* Medium screen */
+
+@media screen and (max-width: 768px) {
+
+	#fh5co-header .display-tc h1,
+	#fh5co-counter .display-tc h1,
+	.fh5co-cover .display-tc h1 {
+		font-size: 40px;
+	}
+
+	.couple-title {
+		padding-bottom: 100px !important;
+	}
+
+	.couple-half {
+		width: 100%;
+	}
+
+	.simply-countdown>.simply-section {
+		width: 50px;
+		height: 50px;
+	}
+
+	.simply-countdown>.simply-section>div {
+		width: 50px;
+		height: 50px;
+	}
+
+	.simply-countdown>.simply-section .simply-amount {
+		font-size: 15px;
+	}
+
+	.simply-countdown>.simply-section .simply-word {
+		font-size: 8px;
+	}
+}
+
+/* Small screen */
+
+@media screen and (max-width: 480px) {
+
+	.couple-title {
+		padding-bottom: 60px !important;
+	}
+
+	.couple-half .groom,
+	.couple-half .bride {
+		width: 150px;
+		height: 150px;
+		margin: 0 auto;
+	}
+
+	.couple-half .half-bg-wrapper {
+		width: 100%;
+		height: 150px;
+		display: flex;
+	}
 }
