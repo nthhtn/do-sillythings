@@ -71,6 +71,8 @@
 	<script src="/assets/wedding/js/respond.min.js"></script>
 	<![endif]-->
 
+	<!-- Sweet Alert -->
+	<link rel="stylesheet" href="/assets/views/wedding/sweetalert2.min.css" />
 </head>
 
 <body>
@@ -618,27 +620,40 @@
 				<div class="row animate-box">
 					<div class="col-md-10 col-md-offset-1" id="form-attendance">
 						<div class="row">
-							<div class="col-md-4 col-sm-4">
+							<div class="col-md-3 col-sm-3">
 								<div class="form-group">
 									<label for="name" class="sr-only">Name</label>
 									<input type="name" class="form-control" id="name" placeholder="Name">
 								</div>
 							</div>
-							<div class="col-md-4 col-sm-4">
+							<div class="col-md-3 col-sm-3">
 								<div class="form-group">
 									<label for="email" class="sr-only">Email</label>
 									<input type="email" class="form-control" id="email" placeholder="Email">
 								</div>
 							</div>
-							<div class="col-md-4 col-sm-4">
+							<div class="col-md-3 col-sm-3">
 								<div class="form-group">
 									<div class="select-wrapper">
-										<select class="form-control" name="cars" id="cars">
-											<option value="0">Choose the date:</option>
-											<option value="volvo">Volvo</option>
-											<option value="saab">Saab</option>
-											<option value="mercedes">Mercedes</option>
-											<option value="audi">Audi</option>
+										<select class="form-control" id="quantity">
+											<option value="-1">Number of participants:</option>
+											<option value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="0">Not attending :&#40;</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3 col-sm-3">
+								<div class="form-group">
+									<div class="select-wrapper">
+										<select class="form-control" id="venue">
+											<option value="-1">Choose the date:</option>
+											<option value="1">05/08 - Maxim's Vũng Tàu</option>
+											<option value="2">06/08 - Bách Việt Wedding &amp; Event</option>
+											<option value="3">12/08 - Quinter Central Nha Trang</option>
+											<option value="0">Not attending :&#40;</option>
 										</select>
 									</div>
 								</div>
@@ -679,6 +694,9 @@
 	<script src="/assets/wedding/js/simplyCountdown.js"></script>
 	<!-- Main -->
 	<script src="/assets/wedding/js/main.js"></script>
+
+	<!-- Sweet Alert -->
+	<script src="/assets/views/wedding/sweetalert2.min.js"></script>
 
 	<script>
 		// var d = new Date(new Date().getTime() + 200 * 120 * 120 * 2000);

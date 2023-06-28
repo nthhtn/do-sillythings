@@ -14,10 +14,26 @@ router.route("/").get((req, res) => {
 	return res.sendFile(viewpath);
 });
 
-// router
-// 	.route("/attendance")
-// 	.get((req, res) => {})
-// 	.post((req, res) => {});
+router
+	.route("/attendance")
+	.get(async (req, res) => {
+		const count = await WeddingAttendance.countDocuments();
+		return res.json({ count });
+	})
+	.post(async (req, res) => {
+		const { name, email, quantity, venue } = req.body;
+		const id = mongoose.Types.ObjectId();
+		const fields = {
+			_id: id,
+			name,
+			email,
+			quantity: parseInt(quantity),
+			venue: parseInt(venue),
+		};
+		let attendance = new WeddingAttendance(fields);
+		await attendance.save();
+		return res.json({ success: true, result: attendance });
+	});
 
 // router.route("/oauth2callback").get((req, res) => {
 // 	console.log(req.body);
