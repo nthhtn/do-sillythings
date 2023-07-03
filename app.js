@@ -18,6 +18,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/assets', express.static(`${__dirname}/static`));
 app.use('/uploads', express.static(`${__dirname}/uploads`));
 
+app.use('/favicon.ico', express.static(`${__dirname}/static/img/favicon.ico`));
+
 app.use(session({
 	secret: SESSION_SECRET,
 	resave: false,

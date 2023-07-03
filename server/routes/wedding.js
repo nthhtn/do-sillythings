@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import path from "path";
+import fs from "fs";
 
 import WeddingAttendance from "../models/WeddingAttendance";
 
@@ -8,7 +9,8 @@ import WeddingAttendance from "../models/WeddingAttendance";
 
 const router = express.Router();
 const VIEW_FOLDER = `${__dirname}/../../static/views`;
-const GALLERY_FOLDER = `${__dirname}/../../static/img/gallery/compressed`;
+const GALLERY_FOLDER = `${__dirname}/../../static/img/wedding/gallery/compressed`;
+const GALLERY_URL_PREFIX = "/assets/img/wedding/gallery/compressed";
 
 router.route("/").get((req, res) => {
 	const viewpath = path.resolve(VIEW_FOLDER, "wedding.html");
@@ -36,8 +38,20 @@ router
 		return res.json({ success: true, result: attendance });
 	});
 
-router.route("/gallery").get((req, res) => {
-	const folder = VIEW_FOLDER + "/" + req.query.index;
+router.route("/gallery/:galleryIndex").get((req, res) => {
+	res.setHeader("Content-Type", "text/html");
+	let html = "";
+	const { galleryIndex } = req.params;
+	if (galleryIndex >= 1 && galleryIndex <= 3) {
+		const folder = GALLERY_FOLDER + "/" + galleryIndex;
+		const files = fs.readdirSync(folder);
+		for (let i = 0; i < files.length; i++) {
+			let imgSrc = GALLERY_URL_PREFIX + '/' + galleryIndex + '/' + files[i];
+			html += `<li class="one-third animate-box" data-animate-effect="fadeIn"
+			style="background-image: url('${imgSrc}'); "></li>`;
+		}
+	}
+	return res.send(html);
 });
 
 // router.route("/oauth2callback").get((req, res) => {

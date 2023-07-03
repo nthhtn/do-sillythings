@@ -1,10 +1,42 @@
 $(document).ready(() => {
 
-	// Build gallery modal
-
-	var loadGalleryModal = function(index){
+	// First element
+	function goToByScroll(id) {
+		$("html,body").animate({ scrollTop: $("#" + id).offset().top }, "smooth");
 	}
 
+	goToByScroll('fh5co-header');
+
+	$('.fh5co-nav .menu-button-scroll').on('click',function(e){
+		e.preventDefault();
+		var targetId=$(this).attr('href').split('#')[1];
+		console.log(targetId);
+		goToByScroll(targetId);
+		return false;
+	});
+
+	// Build gallery modal
+
+	// var loadGalleryModal = function (index) {};
+
+	// $("#gallery-modal").on("show.bs.modal", function(){
+	// 	console.log(1);
+	// });
+
+	// $("#gallery-modal").on("loaded.bs.modal", function(){
+	// 	console.log(3);
+	// });
+
+	// $("#gallery-modal").on("shown.bs.modal", function () {
+	// 	console.log(2);
+	// 	$.ajax({
+	// 		type: "GET",
+	// 		url: "/wedding/gallery/3",
+	// 		success: function (html) {
+	// 			$("#gallery-modal").find("ul.gallery-items").html(html);
+	// 		},
+	// 	});
+	// });
 
 	// Count Attendance
 
@@ -38,7 +70,7 @@ $(document).ready(() => {
 		type: "GET",
 		url: "/wedding/attendance",
 		success: function (data) {
-			console.log(data.count);
+			// console.log(data.count);
 			// counter();
 			// counterWayPoint();
 		},
@@ -72,7 +104,7 @@ $(document).ready(() => {
 			dataType: "json",
 			url: "/wedding/attendance",
 			success: function (data) {
-				console.log(data);
+				// console.log(data);
 				var Toast = Swal.mixin({
 					toast: true,
 					position: "top-end",
