@@ -11,10 +11,6 @@ html {
 	font-size: 24px;
 }
 
-.couple-title {
-	padding-bottom: 300px !important;
-}
-
 #fh5co-header .display-tc h1,
 #fh5co-counter .display-tc h1,
 .fh5co-cover .display-tc h1 {
@@ -28,12 +24,66 @@ html {
 	background-repeat: no-repeat;
 }
 
-.fh5co-cover .overlay {
-	/* background-color: #FDF2DB; */
+.fh5co-cover {
 	background-image: url('/assets/img/wedding/overlay.jpg');
-	background-position: center;
+	background-position: center !important;
 	background-size: cover;
 	background-repeat: no-repeat;
+	height: 100vh;
+}
+
+.couple-title {
+	/* padding-bottom: 260px !important; */
+	padding-bottom: 300px !important;
+}
+
+/* .couple-title .couple-name {
+	font-size: 48px !important;
+	line-height: 1 !important;
+	margin-bottom: 20px !important;
+} */
+
+.gallery-modal .modal-dialog {
+	width: 70%;
+	margin: 0 auto;
+}
+
+.gallery-modal .gallery-items {
+	flex-wrap: wrap;
+	-webkit-flex-wrap: wrap;
+	-moz-flex-wrap: wrap;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	position: relative;
+	float: left;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+}
+
+.gallery-modal .gallery-items li {
+	display: block;
+	padding: 0;
+	margin: 0 0 10px 1%;
+	list-style: none;
+	min-height: 400px;
+	background-position: center center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	float: left;
+	clear: left;
+	position: relative;
+	-webkit-border-radius: 7px;
+	-moz-border-radius: 7px;
+	-ms-border-radius: 7px;
+	border-radius: 7px;
+}
+
+.gallery-modal .gallery-items li.one-third {
+	width: 32.3%;
 }
 
 #form-attendance .select-wrapper {
@@ -57,6 +107,20 @@ html {
 #form-attendance #submit-attendance {
 	width: fit-content;
 	margin: 30px auto;
+}
+
+#fh5co-counter {
+	padding: 7em 0;
+	clear: both;
+}
+
+#fh5co-counter h2 {
+	font-size: 60px;
+	margin-bottom: 10px;
+	line-height: 1.5;
+	font-weight: bold;
+	color: #fff;
+	font-family: "Sacramento";
 }
 
 /* Medium screen */
@@ -94,6 +158,10 @@ html {
 	.simply-countdown>.simply-section .simply-word {
 		font-size: 8px;
 	}
+
+	.gallery-modal .gallery-items li.one-third {
+		width: 49%;
+	}
 }
 
 /* Small screen */
@@ -115,5 +183,9 @@ html {
 		width: 100%;
 		height: 150px;
 		display: flex;
+	}
+
+	.gallery-modal .gallery-items li.one-third {
+		width: 100%;
 	}
 }

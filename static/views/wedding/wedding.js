@@ -1,11 +1,50 @@
 $(document).ready(() => {
+
+	// Build gallery modal
+
+	var loadGalleryModal = function(index){
+	}
+
+
+	// Count Attendance
+
+	var counter = function () {
+		$(".js-counter").countTo({
+			formatter: function (value, options) {
+				console.log(value);
+				return value.toFixed(options.decimals);
+			},
+		});
+	};
+
+	var counterWayPoint = function () {
+		if ($("#fh5co-counter").length > 0) {
+			$("#fh5co-counter").waypoint(
+				function (direction) {
+					if (
+						direction === "down" &&
+						!$(this.element).hasClass("animated")
+					) {
+						setTimeout(counter, 400);
+						$(this.element).addClass("animated");
+					}
+				},
+				{ offset: "90%" }
+			);
+		}
+	};
+
 	$.ajax({
 		type: "GET",
 		url: "/wedding/attendance",
 		success: function (data) {
-			console.log(data);
+			console.log(data.count);
+			// counter();
+			// counterWayPoint();
 		},
 	});
+
+	// Submit Attendance
 
 	$("#submit-attendance").on("click", () => {
 		var form = $("#form-attendance");

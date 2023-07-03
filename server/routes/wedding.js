@@ -8,6 +8,7 @@ import WeddingAttendance from "../models/WeddingAttendance";
 
 const router = express.Router();
 const VIEW_FOLDER = `${__dirname}/../../static/views`;
+const GALLERY_FOLDER = `${__dirname}/../../static/img/gallery/compressed`;
 
 router.route("/").get((req, res) => {
 	const viewpath = path.resolve(VIEW_FOLDER, "wedding.html");
@@ -34,6 +35,10 @@ router
 		await attendance.save();
 		return res.json({ success: true, result: attendance });
 	});
+
+router.route("/gallery").get((req, res) => {
+	const folder = VIEW_FOLDER + "/" + req.query.index;
+});
 
 // router.route("/oauth2callback").get((req, res) => {
 // 	console.log(req.body);
