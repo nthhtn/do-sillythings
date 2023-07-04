@@ -10,6 +10,8 @@ html {
 .fh5co-nav #fh5co-logo img {
 	width: 120px;
 	height: 120px;
+	position: absolute;
+	top: -30px;
 }
 
 #fh5co-header .display-tc h1,
@@ -34,15 +36,12 @@ html {
 }
 
 .couple-title {
-	/* padding-bottom: 260px !important; */
 	padding-bottom: 300px !important;
 }
 
-/* .couple-title .couple-name {
-	font-size: 48px !important;
-	line-height: 1 !important;
-	margin-bottom: 20px !important;
-} */
+.couple-subtitle {
+	margin-bottom: 0 !important;
+}
 
 #fh5co-counter {
 	height: auto;
@@ -128,6 +127,14 @@ html {
 	font-family: "Sacramento";
 }
 
+#wedding-video {
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+	max-width: 100%;
+	height: auto;
+}
+
 .loader {
 	border: 16px solid #f3f3f3;
 	border-radius: 50%;
@@ -156,6 +163,7 @@ html {
 	.fh5co-nav #fh5co-logo img {
 		width: 80px;
 		height: 80px;
+		top: -15px;
 	}
 
 	#fh5co-header .display-tc h1,
@@ -170,6 +178,10 @@ html {
 
 	.couple-half {
 		width: 100%;
+	}
+
+	.simply-countdown {
+		margin-top: 10em;
 	}
 
 	.simply-countdown>.simply-section {
@@ -202,6 +214,7 @@ html {
 	.fh5co-nav #fh5co-logo img {
 		width: 60px;
 		height: 60px;
+		top: initial;
 	}
 
 	.couple-title {
