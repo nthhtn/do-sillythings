@@ -10,7 +10,6 @@ $(document).ready(() => {
 	$('.fh5co-nav .menu-button-scroll').on('click',function(e){
 		e.preventDefault();
 		var targetId=$(this).attr('href').split('#')[1];
-		console.log(targetId);
 		goToByScroll(targetId);
 		return false;
 	});
@@ -21,7 +20,7 @@ $(document).ready(() => {
 		var videoElement = this;
 		setTimeout(()=>{
 			$(videoElement).get(0).play();
-		}, 5000);
+		}, 10000);
 	 }, false);
 
 	// Build gallery modal
@@ -52,7 +51,6 @@ $(document).ready(() => {
 	var counter = function () {
 		$(".js-counter").countTo({
 			formatter: function (value, options) {
-				console.log(value);
 				return value.toFixed(options.decimals);
 			},
 		});
