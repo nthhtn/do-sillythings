@@ -15,6 +15,15 @@ $(document).ready(() => {
 		return false;
 	});
 
+	// Autoplay video
+
+	document.getElementById("wedding-video").addEventListener('loadeddata', function(e) {
+		var videoElement = this;
+		setTimeout(()=>{
+			$(videoElement).get(0).play();
+		}, 5000);
+	 }, false);
+
 	// Build gallery modal
 
 	// var loadGalleryModal = function (index) {};
