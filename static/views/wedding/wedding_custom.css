@@ -111,9 +111,9 @@ html {
 }
 
 #fh5co-event {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 #fh5co-couple-story {
@@ -123,23 +123,24 @@ html {
 }
 
 .timeline::before {
-	background-color: grey;
+	background-color: gainsboro;
 }
 
-.timeline > li > .timeline-panel {
-	border-color: grey;
+.timeline>li>.timeline-panel {
+	border-color: gainsboro;
+	background-color: gainsboro;
 }
 
-.timeline > li > .timeline-panel::after {
-	border-left-color: grey;
-    border-right-color: grey;
+.timeline>li>.timeline-panel::after {
+	border-left-color: gainsboro;
+	border-right-color: gainsboro;
 }
 
-.timeline > li:nth-of-type(odd) > .timeline-panel .timeline-title {
+.timeline>li:nth-of-type(odd)>.timeline-panel .timeline-title {
 	color: #164732;
 }
 
-.timeline > li:nth-of-type(even) > .timeline-panel .timeline-title {
+.timeline>li:nth-of-type(even)>.timeline-panel .timeline-title {
 	color: #C79668;
 }
 
@@ -171,20 +172,31 @@ html {
 	border-top: 16px solid #3498db;
 	width: 120px;
 	height: 120px;
-	-webkit-animation: spin 2s linear infinite; /* Safari */
+	-webkit-animation: spin 2s linear infinite;
+	/* Safari */
 	animation: spin 2s linear infinite;
-  }
-  
-  /* Safari */
-  @-webkit-keyframes spin {
-	0% { -webkit-transform: rotate(0deg); }
-	100% { -webkit-transform: rotate(360deg); }
-  }
-  
-  @keyframes spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
-  }
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
 
 /* Large screen */
 
@@ -192,6 +204,25 @@ html {
 
 	.couple-title {
 		padding-bottom: 190px !important;
+	}
+
+	#fh5co-event .event-wrap {
+		border-color: rgba(0, 0, 0, 0.5);
+		background-color: gainsboro;
+	}
+
+	#fh5co-event .event-wrap h3 {
+		color: rgba(0, 0, 0, 0.8);
+		border-bottom-color: rgba(0, 0, 0, 0.5);
+	}
+
+	#fh5co-event .event-wrap p,
+	#fh5co-event .event-wrap span {
+		color: rgba(0, 0, 0, 0.8);
+	}
+
+	#fh5co-event .event-wrap i {
+		color: black;
 	}
 
 }
@@ -245,9 +276,6 @@ html {
 	.gallery-modal .gallery-items li.one-third {
 		width: 49%;
 	}
-}
-
-@media screen and (max-width: 768px) and (max-height: 600px){
 	
 }
 
