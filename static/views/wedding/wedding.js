@@ -88,11 +88,11 @@ $(document).ready(() => {
 	$("#submit-attendance").on("click", () => {
 		var form = $("#form-attendance");
 		var name = $(form).find("#name").val();
-		var email = $(form).find("#email").val();
+		// var email = $(form).find("#email").val();
 		var quantity = parseInt($(form).find("#quantity").val());
 		var venue = parseInt($(form).find("#venue").val());
 
-		if (!name || !email || quantity == -1 || venue == -1) {
+		if (!name || quantity == -1 || venue == -1) {
 			Swal.fire({
 				icon: "error",
 				title: "Oops...",
@@ -104,7 +104,7 @@ $(document).ready(() => {
 			type: "POST",
 			data: {
 				name: name,
-				email: email,
+				// email: email,
 				quantity: quantity,
 				venue: venue,
 			},

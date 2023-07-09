@@ -159,12 +159,26 @@ html {
 	font-family: "Sacramento";
 }
 
+#video-wrapper {
+	margin-bottom: 20px;
+}
+
+#video-wrapper .fh5co-video {
+	height: fit-content !important;
+}
+
 #wedding-video {
 	position: relative;
 	left: 50%;
 	transform: translateX(-50%);
 	max-width: 100%;
 	height: auto;
+}
+#video-caption {
+	font-family: 'Sacramento';
+	font-size: 38px;
+	color: #C79668;
+	text-transform: none;
 }
 
 .loader {
