@@ -22,7 +22,8 @@ router
 	.route("/attendance")
 	.get(async (req, res) => {
 		const count = await WeddingAttendance.countDocuments();
-		return res.json({ count });
+		const list = await WeddingAttendance.find({}).sort({venue: 1});
+		return res.json({ count, list });
 	})
 	.post(async (req, res) => {
 		const { name, quantity, venue } = req.body;
