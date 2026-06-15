@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Pagination from 'react-js-pagination';
 
 import { listArticles } from '../actions/article';
@@ -6,52 +7,47 @@ import Sidebar from './Sidebar';
 import ArticleItem from './ArticleItem';
 import { scrollToElement } from '../helpers';
 
-export default class Home extends Component {
+export default function Home() {
+	const dispatch = useDispatch();
+	const article = useSelector((state) => state.article);
+	const [activePage, setActivePage] = useState(1);
 
-	constructor(props) {
-		super(props);
-		this.state = { activePage: 1 };
-	}
+	useEffect(() => {
+		dispatch(listArticles(1, 5));
+	}, []);
 
-	async componentDidMount() {
-		await this.props.dispatch(listArticles(1, 5));
-	}
-
-	async onPageChange(page) {
-		await this.props.dispatch(listArticles(page, 5));
+	async function onPageChange(page) {
+		await dispatch(listArticles(page, 5));
 		scrollToElement('articles-wrapper');
-		this.setState({ activePage: page });
+		setActivePage(page);
 	}
 
-	render() {
-		return (
-			<section className="ftco-section" id="articles-wrapper">
-				<div className="container">
-					<div className="row">
-						<div className="col-lg-8">
-							<div className="row">
-								{this.props.article.list.map((item) => (<ArticleItem {...item} key={item._id} />))}
-							</div>
-							<div className="row mt-5">
-								<div className="col text-center">
-									<div className="block-27">
-										<Pagination
-											innerClass='block-27'
-											activePage={this.state.activePage}
-											itemsCountPerPage={5}
-											totalItemsCount={this.props.article.count}
-											pageRangeDisplayed={3}
-											onChange={this.onPageChange.bind(this)}
-										/>
-									</div>
+	return (
+		<section className="ftco-section" id="articles-wrapper">
+			<div className="container">
+				<div className="row">
+					<div className="col-lg-8">
+						<div className="row">
+							{article.list.map((item) => (<ArticleItem {...item} key={item._id} />))}
+						</div>
+						<div className="row mt-5">
+							<div className="col text-center">
+								<div className="block-27">
+									<Pagination
+										innerClass='block-27'
+										activePage={activePage}
+										itemsCountPerPage={5}
+										totalItemsCount={article.count}
+										pageRangeDisplayed={3}
+										onChange={onPageChange}
+									/>
 								</div>
 							</div>
 						</div>
-						<Sidebar {...this.props} />
 					</div>
+					<Sidebar />
 				</div>
-			</section>
-		);
-	}
-
+			</div>
+		</section>
+	);
 }

@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Pagination from 'react-js-pagination';
 import qs from 'qs';
 import { Helmet } from 'react-helmet';
@@ -8,63 +10,58 @@ import Sidebar from './Sidebar';
 import ArticleItem from './ArticleItem';
 import { scrollToElement } from '../helpers';
 
-export default class SearchResult extends Component {
+export default function SearchResult() {
+	const location = useLocation();
+	const dispatch = useDispatch();
+	const article = useSelector((state) => state.article);
 
-	constructor(props) {
-		super(props);
-		const query = qs.parse(this.props.location?.search, { ignoreQueryPrefix: true });
-		const category = query.caetegory ? query.category.split(',') : [];
-		this.state = {
-			activePage: query.page ? parseInt(query.page) : 1,
-			category,
-			keyword: query.keyword || ''
-		};
-	}
+	const query = qs.parse(location.search, { ignoreQueryPrefix: true });
+	const categoryFromQuery = query.category ? query.category.split(',') : [];
+	const keywordFromQuery = query.keyword || '';
 
-	async componentDidMount() {
-		await this.props.dispatch(searchArticles(this.state.keyword, this.state.category.join(','), 1, 5));
-		window.onload = () => {
-			scrollToElement('articles-wrapper');
-		}
-	}
+	const [activePage, setActivePage] = useState(query.page ? parseInt(query.page) : 1);
 
-	async onPageChange(page) {
-		await this.props.dispatch(searchArticles(this.state.keyword, this.state.category.join(','), page, 5));
+	useEffect(() => {
+		dispatch(searchArticles(keywordFromQuery, categoryFromQuery.join(','), 1, 5)).then(() => {
+			window.onload = () => scrollToElement('articles-wrapper');
+		});
+	}, [location.search]);
+
+	async function onPageChange(page) {
+		await dispatch(searchArticles(keywordFromQuery, categoryFromQuery.join(','), page, 5));
+		setActivePage(page);
 		scrollToElement('articles-wrapper');
 	}
 
-	render() {
-		return (
-			<section className="ftco-section" id="articles-wrapper">
-				<Helmet>
-					<title>{this.props.article?.count.toString()} search result(s)</title>
-				</Helmet>
-				<div className="container">
-					<div className="row">
-						<div className="col-lg-8">
-							<div className="row">
-								{this.props.article.list.map((item) => (<ArticleItem {...item} key={item._id} />))}
-							</div>
-							<div className="row mt-5">
-								<div className="col text-center">
-									<div className="block-27">
-										<Pagination
-											innerClass='block-27'
-											activePage={this.state.activePage}
-											itemsCountPerPage={5}
-											totalItemsCount={this.props.article.count}
-											pageRangeDisplayed={3}
-											onChange={this.onPageChange.bind(this)}
-										/>
-									</div>
+	return (
+		<section className="ftco-section" id="articles-wrapper">
+			<Helmet>
+				<title>{article?.count?.toString()} search result(s)</title>
+			</Helmet>
+			<div className="container">
+				<div className="row">
+					<div className="col-lg-8">
+						<div className="row">
+							{article.list.map((item) => (<ArticleItem {...item} key={item._id} />))}
+						</div>
+						<div className="row mt-5">
+							<div className="col text-center">
+								<div className="block-27">
+									<Pagination
+										innerClass='block-27'
+										activePage={activePage}
+										itemsCountPerPage={5}
+										totalItemsCount={article.count}
+										pageRangeDisplayed={3}
+										onChange={onPageChange}
+									/>
 								</div>
 							</div>
 						</div>
-						<Sidebar {...this.props} />
 					</div>
+					<Sidebar />
 				</div>
-			</section>
-		);
-	}
-
+			</div>
+		</section>
+	);
 }

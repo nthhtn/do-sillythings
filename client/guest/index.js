@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { render } from 'react-dom';
+import React, { useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import axios from 'axios';
@@ -8,65 +8,62 @@ import Main from './components/Main';
 import store from './store';
 import { getMyProfile } from './actions/user';
 
-class Login extends Component {
+function Login() {
+	const usernameRef = useRef(null);
+	const passwordRef = useRef(null);
+	const [loginError, setLoginError] = useState('');
 
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-
-	handleLogin() {
-		const username = $('#login-username').val();
-		const password = $('#login-password').val();
+	function handleLogin() {
+		const username = usernameRef.current.value;
+		const password = passwordRef.current.value;
 		if (!username || !password) {
-			$('#login-error').html('Invalid username/password');
+			setLoginError('Invalid username/password');
 			return;
 		}
 		axios.post('/login', { username, password })
-			.then((response) => {
+			.then(() => {
 				window.location.href = '/';
 			})
 			.catch((error) => {
-				$('#login-error').html(error.response.data.error);
+				setLoginError(error.response.data.error);
 			});
 	}
 
-	render() {
-		return (
-			<div className="modal fade" id="modal-login" tabIndex={-1} role="dialog" aria-labelledby="modal-loginLabel" aria-hidden="true">
-				<div className="modal-dialog" role="document">
-					<div className="modal-content">
-						<div className="modal-header">
-							<h5 className="modal-title" id="modal-loginLabel">Login</h5>
-							<button type="button" className="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">×</span>
-							</button>
+	return (
+		<div className="modal fade" id="modal-login" tabIndex={-1} role="dialog" aria-labelledby="modal-loginLabel" aria-hidden="true">
+			<div className="modal-dialog" role="document">
+				<div className="modal-content">
+					<div className="modal-header">
+						<h5 className="modal-title" id="modal-loginLabel">Login</h5>
+						<button type="button" className="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div className="modal-body">
+						<div className="form-group">
+							<input type="text"
+								className="form-control form-control-alt form-control-lg"
+								ref={usernameRef}
+								placeholder="Username" />
 						</div>
-						<div className="modal-body">
-							<div className="form-group">
-								<input type="text"
-									className="form-control form-control-alt form-control-lg"
-									id="login-username" placeholder="Username" />
-							</div>
-							<div className="form-group">
-								<input type="password"
-									className="form-control form-control-alt form-control-lg"
-									id="login-password" placeholder="Password" />
-							</div>
-							<div className="form-group">
-								<label className="d-block" id="login-error" style={{ color: 'red' }}></label>
-							</div>
+						<div className="form-group">
+							<input type="password"
+								className="form-control form-control-alt form-control-lg"
+								ref={passwordRef}
+								placeholder="Password" />
 						</div>
-						<div className="modal-footer">
-							<button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-							<button type="button" className="btn btn-primary" onClick={this.handleLogin.bind(this)}>Login</button>
+						<div className="form-group">
+							{loginError && <label className="d-block" style={{ color: 'red' }}>{loginError}</label>}
 						</div>
+					</div>
+					<div className="modal-footer">
+						<button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" className="btn btn-primary" onClick={handleLogin}>Login</button>
 					</div>
 				</div>
 			</div>
-		);
-	}
-
+		</div>
+	);
 }
 
 store.dispatch(getMyProfile())
@@ -146,12 +143,9 @@ store.dispatch(getMyProfile())
 				</BrowserRouter>
 			</Provider>
 		);
-		render(rootComponent, document.getElementById('root'));
+		createRoot(document.getElementById('root')).render(rootComponent);
 		const script = document.createElement("script");
 		script.src = "/assets/explore/js/main.js";
 		script.async = true;
-		script.onload = () => {
-			
-		};
 		document.body.appendChild(script);
 	});

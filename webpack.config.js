@@ -20,7 +20,10 @@ module.exports = {
 		hot: true
 	},
 	resolve: {
-		extensions: ['.js', '.jsx', '.css']
+		extensions: ['.js', '.jsx', '.css'],
+		alias: {
+			'react-bootstrap-typeahead': path.resolve(__dirname, 'node_modules/react-bootstrap-typeahead/cjs/index.js')
+		}
 	},
 	plugins: [new webpack.HotModuleReplacementPlugin()],
 	module: {

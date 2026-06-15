@@ -1,32 +1,23 @@
-import React, { Component } from 'react';
+import React from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
-export default class About extends Component {
-
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-
-	render() {
-		return (
-			<main id="main-container">
-				<div className="bg-body-light">
-					<div className="content content-full">
-						<div className="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-							<h1 className="flex-sm-fill h3 my-2">About Page Editor</h1>
-						</div>
+export default function About() {
+	return (
+		<main id="main-container">
+			<div className="bg-body-light">
+				<div className="content content-full">
+					<div className="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+						<h1 className="flex-sm-fill h3 my-2">About Page Editor</h1>
 					</div>
 				</div>
-				<div className="content">
-					<div className="block">
-						<div className="block-content">
-							<div>This page is under construction</div>
-						</div>
+			</div>
+			<div className="content">
+				<div className="block">
+					<div className="block-content">
+						<div>This page is under construction</div>
 					</div>
 				</div>
-			</main>
-		);
-	}
-
-};
+			</div>
+		</main>
+	);
+}

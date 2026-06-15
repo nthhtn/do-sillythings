@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Pagination from 'react-js-pagination';
 import { Helmet } from 'react-helmet';
 
@@ -7,61 +9,53 @@ import { scrollToElement } from '../helpers';
 import Sidebar from './Sidebar';
 import ArticleItem from './ArticleItem';
 
-export default class ArticleInCategory extends Component {
+export default function ArticleInCategory() {
+	const { category } = useParams();
+	const dispatch = useDispatch();
+	const article = useSelector((state) => state.article);
+	const [activePage, setActivePage] = useState(1);
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			activePage: 1,
-			category: this.props.match.params.category
-		};
-	}
+	useEffect(() => {
+		dispatch(listArticlesByCategory(category, 1, 5)).then(() => {
+			window.onload = () => scrollToElement('articles-wrapper');
+		});
+	}, [category]);
 
-	async componentDidMount() {
-		await this.props.dispatch(listArticlesByCategory(this.state.category, 1, 5));
-		window.onload = () => {
-			scrollToElement('articles-wrapper');
-		}
-	}
-
-	async onPageChange(page) {
-		await this.props.dispatch(listArticlesByCategory(this.state.category, page, 5));
-		this.setState({ activePage: page });
+	async function onPageChange(page) {
+		await dispatch(listArticlesByCategory(category, page, 5));
+		setActivePage(page);
 		scrollToElement('articles-wrapper');
 	}
 
-	render() {
-		return (
-			<section className="ftco-section" id="articles-wrapper">
-				<Helmet>
-					<title>{this.state.category}</title>
-				</Helmet>
-				<div className="container">
-					<div className="row">
-						<div className="col-lg-8">
-							<div className="row">
-								{this.props.article.list.map((item) => (<ArticleItem {...item} key={item._id} />))}
-							</div>
-							<div className="row mt-5">
-								<div className="col text-center">
-									<div className="block-27">
-										<Pagination
-											innerClass='block-27'
-											activePage={this.state.activePage}
-											itemsCountPerPage={5}
-											totalItemsCount={this.props.article?.count}
-											pageRangeDisplayed={3}
-											onChange={this.onPageChange.bind(this)}
-										/>
-									</div>
+	return (
+		<section className="ftco-section" id="articles-wrapper">
+			<Helmet>
+				<title>{category}</title>
+			</Helmet>
+			<div className="container">
+				<div className="row">
+					<div className="col-lg-8">
+						<div className="row">
+							{article.list.map((item) => (<ArticleItem {...item} key={item._id} />))}
+						</div>
+						<div className="row mt-5">
+							<div className="col text-center">
+								<div className="block-27">
+									<Pagination
+										innerClass='block-27'
+										activePage={activePage}
+										itemsCountPerPage={5}
+										totalItemsCount={article?.count}
+										pageRangeDisplayed={3}
+										onChange={onPageChange}
+									/>
 								</div>
 							</div>
 						</div>
-						<Sidebar {...this.props} />
 					</div>
+					<Sidebar />
 				</div>
-			</section>
-		);
-	}
-
+			</div>
+		</section>
+	);
 }

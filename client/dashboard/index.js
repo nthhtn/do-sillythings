@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -81,4 +81,4 @@ const rootComponent = (
 	</Provider>
 );
 
-render(rootComponent, document.getElementById('root'));
+createRoot(document.getElementById('root')).render(rootComponent);
