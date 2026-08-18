@@ -8,11 +8,11 @@ export default function ArticleItem({ _id, title, content, coverImg, createdAt, 
 	return (
 		<div className="col-md-12">
 			<div className="blog-entry ftco-animate fadeInUp ftco-animated">
-				<Link to={`/articles/${title}`} className="img"
+				<div className="img"
 					style={{
 						backgroundImage: `url(${coverImg})`, backgroundSize: 'cover',
 						backgroundRepeat: 'no-repeat', backgroundPosition: 'center center'
-					}}></Link>
+					}}></div>
 				<div className="text pt-2 mt-5">
 					<h3 className="mb-4"><Link to={`/articles/${title}`}>{title}</Link></h3>
 					<div className="mb-4">

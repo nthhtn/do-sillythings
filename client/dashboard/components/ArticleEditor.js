@@ -10,10 +10,19 @@ import Swal from 'sweetalert2';
 import { createArticle, updateArticle, getArticle } from '../actions/article';
 import { listCategories } from '../actions/category';
 
+function generateObjectId() {
+	const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
+	let random = '';
+	for (let i = 0; i < 16; i++) { random += Math.floor(Math.random() * 16).toString(16); }
+	return timestamp + random;
+}
+
 export default function ArticleEditor() {
 	const { id } = useParams();
 	const articleId = id && id !== 'new' ? id : null;
 	const isNew = articleId == null;
+	const [newArticleId] = useState(() => (isNew ? generateObjectId() : null));
+	const uploadArticleId = isNew ? newArticleId : articleId;
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -61,7 +70,7 @@ export default function ArticleEditor() {
 			return setError('Missing required field(s)');
 		}
 		setError('');
-		await dispatch(createArticle({ title, content, file, categoryId, tags: tagSelected }));
+		await dispatch(createArticle({ _id: newArticleId, title, content, file, categoryId, tags: tagSelected }));
 		if (tagRef.current) tagRef.current.clear();
 		navigate('/dashboard/articles');
 	}
@@ -127,6 +136,7 @@ export default function ArticleEditor() {
 										value={title} onChange={(e) => setTitle(e.target.value)} />
 								</div>
 								<Editor
+									apiKey={process.env.TINYMCE_APIKEY}
 									initialValue={article.current?.content || ''}
 									onInit={(_, editor) => { editorRef.current = editor; }}
 									init={{
@@ -142,25 +152,19 @@ export default function ArticleEditor() {
 										autosave_retention: '2m',
 										image_advtab: true,
 										importcss_append: true,
-										file_picker_callback: function (callback, value, meta) {
-											var input = document.createElement('input');
-											input.setAttribute('type', 'file');
-											input.setAttribute('accept', 'image/*');
-											input.onchange = function () {
-												var file = this.files[0];
-												var reader = new FileReader();
-												reader.onload = function () {
-													var id = 'blobid' + (new Date()).getTime();
-													var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-													var base64 = reader.result.split(',')[1];
-													var blobInfo = blobCache.create(id, file, base64);
-													blobCache.add(blobInfo);
-													callback(blobInfo.blobUri(), { title: file.name });
-												};
-												reader.readAsDataURL(file);
-											};
-											input.click();
-										},
+										images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
+											const formdata = new FormData();
+											formdata.append('file', blobInfo.blob(), blobInfo.filename());
+											formdata.append('article_id', uploadArticleId);
+											fetch('/api/articles/upload-image', {
+												method: 'POST',
+												credentials: 'same-origin',
+												body: formdata
+											})
+												.then((res) => res.json())
+												.then((json) => json.success ? resolve(json.url) : reject(json.error))
+												.catch((err) => reject(String(err)));
+										}),
 										template_cdate_format: '[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]',
 										template_mdate_format: '[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]',
 										height: 600,

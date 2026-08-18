@@ -13,11 +13,7 @@ const scopes = ["https://www.googleapis.com/auth/calendar"];
 // 	auth: GOOGLECLOUD_APIKEY,
 // });
 
-// // console.log(calendar);
-// console.log(GOOGLECLOUD_APIKEY);
-
 // calendar.calendarList.get({ calendarId: "primary" }).then((response) => {
-// 	// console.log(response);
 // });
 
 const oauth2Client = new google.auth.OAuth2(
@@ -69,7 +65,6 @@ async function runSample() {
 		resourceName: "people/me",
 		personFields: "emailAddresses",
 	});
-	console.log(res.data);
 }
 
 const url = oauth2Client.generateAuthUrl({

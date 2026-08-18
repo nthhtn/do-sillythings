@@ -5,15 +5,12 @@ import UserRouter from "./routes/user";
 import ArticleRouter from "./routes/article";
 import WeddingRouter from './routes/wedding';
 import UnauthenticatedRouter from "./routes/unauthenticated";
-import { generateCategories } from "./helpers/initializer";
 
 // require('./helpers/google');
 
 const VIEW_FOLDER = `${__dirname}/../static/views`;
 
-module.exports = async (app, db) => {
-	await generateCategories();
-
+module.exports = (app) => {
 	app.use("/api/categories", CategoryRouter);
 	app.use("/api/users", UserRouter);
 	app.use("/api/articles", ArticleRouter);
@@ -27,11 +24,14 @@ module.exports = async (app, db) => {
 
 	app.use("/", UnauthenticatedRouter);
 
-	app.route("/logout").get((req, res) => {
-		if (req.isAuthenticated()) {
-			req.logOut();
+	app.route("/logout").get((req, res, next) => {
+		if (!req.isAuthenticated()) {
+			return res.sendFile(path.resolve(VIEW_FOLDER, "guest.html"));
 		}
-		return res.sendFile(path.resolve(VIEW_FOLDER, "guest.html"));
+		return req.logOut((err) => {
+			if (err) { return next(err); }
+			return res.sendFile(path.resolve(VIEW_FOLDER, "guest.html"));
+		});
 	});
 
 	app.route("/dashboard/*").get(async (req, res) => {

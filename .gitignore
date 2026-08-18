@@ -4,4 +4,7 @@ yarn-error.log
 dist/
 uploads/
 .env
+.env*.local
 .claude/
+.vercel/
+.DS_Store

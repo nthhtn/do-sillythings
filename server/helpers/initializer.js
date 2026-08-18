@@ -10,6 +10,5 @@ export async function generateCategories() {
 		{ name: 'silly gf', displayName: 'Silly gf' },
 		{ name: 'silly bf', displayName: 'Silly bf' }
 	];
-	const result = await Category.insertMany(list);
-	console.log(result);
+	await Category.insertMany(list);
 };

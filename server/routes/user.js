@@ -1,15 +1,16 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
+import { put } from '@vercel/blob';
 
 import User from '../models/User';
 import { isLoggedIn } from '../helpers/middleware';
 import { encrypt, decrypt, hashPassword, truncateEncrypted } from '../helpers/encryption';
 
-const UPLOAD_FOLDER = `${__dirname}/../../uploads`;
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 4 * 1024 * 1024 }
+});
 
 const router = express.Router();
 
@@ -21,46 +22,28 @@ router.route('/me')
 		return res.json({ success: true, result: { username, email, fullName, brief, avatar } });
 	})
 	.put(
-		multer({
-			storage: multer.diskStorage({
-				destination: path.resolve(UPLOAD_FOLDER, 'img/tmp'),
-				filename: (req, file, callback) => {
-					const imageId = mongoose.Types.ObjectId();
-					const filename = file.originalname;
-					const ext = filename.split('.').pop();
-					return callback(null, `${imageId}.${ext}`);
-				}
-			})
-		}).single('file'),
+		upload.single('file'),
 		async (req, res) => {
 			const { _id, salt, password } = req.user;
 			const { fullName, brief, oldpass, newpass } = req.body;
 			let data = { fullName, brief };
 			if (oldpass && newpass) {
-				console.log(password);
-				console.log(hashPassword(oldpass, salt));
-				console.log(hashPassword(oldpass, salt) == password);
-				console.log(hashPassword(oldpass, salt) != password);
-				console.log(hashPassword(oldpass, salt) !== password);
 				if (hashPassword(oldpass, salt) != password) {
 					return res.status(400).json({ success: false, error: 'Wrong current password!' });
 				}
 				data.password = hashPassword(newpass, salt);
 			}
 
-			const encryptedId = truncateEncrypted(encrypt(_id));
 			if (req.file) {
-				const filename = req.file.filename;
-				const ext = filename.split('.').pop();
-				const encrypted_filename = truncateEncrypted(encrypt(filename + Date.now().toString())) + '.' + ext;
+				const ext = req.file.originalname.split('.').pop();
+				const encrypted_filename = truncateEncrypted(encrypt(req.file.originalname + Date.now().toString())) + '.' + ext;
 
-				const oldpath = path.resolve(UPLOAD_FOLDER, 'img/tmp', req.file.filename);
-				const newpath = path.resolve(UPLOAD_FOLDER, `img/users/${encryptedId}/${encrypted_filename}`);
+				const blob = await put(`user/${_id}/avatar/${encrypted_filename}`, req.file.buffer, {
+					access: 'public',
+					contentType: req.file.mimetype
+				});
 
-				mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/users/${encryptedId}`));
-				fs.renameSync(oldpath, newpath);
-
-				data.avatar = `/uploads/img/users/${encryptedId}/${encrypted_filename}`;
+				data.avatar = blob.url;
 			}
 
 			const result = await User.findByIdAndUpdate(_id, data);
@@ -75,15 +58,7 @@ router.route('/me')
 				session_data.password = data.password;
 			}
 
-			console.log('Before');
-			console.log(req.user);
-
-			console.log('Data');
-			console.log(session_data);
-
 			req.login(session_data, (err) => {
-				console.log('After');
-				console.log(req.user);
 				return res.json({ success: true, result: returnedResult });
 			});
 		});

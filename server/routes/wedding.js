@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import path from "path";
-import fs from "fs";
+import { head } from "@vercel/blob";
 
 import WeddingAttendance from "../models/WeddingAttendance";
 
@@ -11,7 +11,9 @@ const router = express.Router();
 const VIEW_FOLDER = `${__dirname}/../../static/views`;
 const GALLERY_FOLDER = `${__dirname}/../../static/img/wedding/gallery/compressed`;
 const GALLERY_URL_PREFIX = "/assets/img/wedding/gallery/compressed";
-const WEDDING_FOLDER = `${__dirname}/../../static/img/wedding`;
+
+const WEDDING_VIDEO_BLOB_PATHNAME = "wedding/video/slide.mp4";
+let cachedVideoUrl = null;
 
 router.route("/").get((req, res) => {
 	const viewpath = path.resolve(VIEW_FOLDER, "wedding.html");
@@ -57,117 +59,16 @@ router
 // 	return res.send(html);
 // });
 
-// router.route("/video").get((req, res) => {
-// 	const range = req.headers.range;
-// 	if (!range) {
-// 		res.status(400).send("Requires Range header");
-// 	}
-// 	const videoPath = path.resolve(WEDDING_FOLDER, "slide.mp4");
-// 	const videoSize = fs.statSync(videoPath).size;
-// 	const CHUNK_SIZE = 10 ** 6;
-// 	const start = Number(range.replace(/\D/g, ""));
-// 	const end = Math.min(start + CHUNK_SIZE, videoSize - 1);
-// 	const contentLength = end - start + 1;
-// 	const headers = {
-// 		"Content-Range": `bytes ${start}-${end}/${videoSize}`,
-// 		"Accept-Ranges": "bytes",
-// 		"Content-Length": contentLength,
-// 		"Content-Type": "video/mp4",
-// 	};
-// 	res.writeHead(206, headers);
-// 	const videoStream = fs.createReadStream(videoPath, { start, end });
-// 	videoStream.pipe(res);
-// });
-
-router.route("/video").get((req, res) => {
-	const options = {};
-
-	let start;
-	let end;
-
-	const range = req.headers.range;
-	if (range) {
-		const bytesPrefix = "bytes=";
-		if (range.startsWith(bytesPrefix)) {
-			const bytesRange = range.substring(bytesPrefix.length);
-			const parts = bytesRange.split("-");
-			if (parts.length === 2) {
-				const rangeStart = parts[0] && parts[0].trim();
-				if (rangeStart && rangeStart.length > 0) {
-					options.start = start = parseInt(rangeStart);
-				}
-				const rangeEnd = parts[1] && parts[1].trim();
-				if (rangeEnd && rangeEnd.length > 0) {
-					options.end = end = parseInt(rangeEnd);
-				}
-			}
+router.route("/video").get(async (req, res, next) => {
+	try {
+		if (!cachedVideoUrl) {
+			const blob = await head(WEDDING_VIDEO_BLOB_PATHNAME);
+			cachedVideoUrl = blob.url;
 		}
+		return res.redirect(302, cachedVideoUrl);
+	} catch (err) {
+		return next(err);
 	}
-
-	res.setHeader("content-type", "video/mp4");
-
-	const videoPath = path.resolve(WEDDING_FOLDER, "slide.mp4");
-	const videoSize = fs.statSync(videoPath).size;
-
-	fs.stat(videoPath, (err, stat) => {
-		if (err) {
-			console.error(`File stat error for ${videoPath}.`);
-			console.error(err);
-			res.sendStatus(500);
-			return;
-		}
-
-		let contentLength = stat.size;
-
-		if (req.method === "HEAD") {
-			res.statusCode = 200;
-			res.setHeader("accept-ranges", "bytes");
-			res.setHeader("content-length", contentLength);
-			res.end();
-		} else {
-			let retrievedLength;
-			if (start !== undefined && end !== undefined) {
-				retrievedLength = end + 1 - start;
-			} else if (start !== undefined) {
-				retrievedLength = contentLength - start;
-			} else if (end !== undefined) {
-				retrievedLength = end + 1;
-			} else {
-				retrievedLength = contentLength;
-			}
-
-			res.statusCode =
-				start !== undefined || end !== undefined ? 206 : 200;
-
-			res.setHeader("content-length", retrievedLength);
-
-			if (range !== undefined) {
-				res.setHeader(
-					"content-range",
-					`bytes ${start || 0}-${
-						end || contentLength - 1
-					}/${contentLength}`
-				);
-				res.setHeader("accept-ranges", "bytes");
-			}
-
-			const fileStream = fs.createReadStream(videoPath, options);
-			fileStream.on("error", (error) => {
-				console.log(`Error reading file ${videoPath}.`);
-				console.log(error);
-				res.sendStatus(500);
-			});
-
-			fileStream.pipe(res);
-		}
-	});
 });
-
-// router.route("/oauth2callback").get((req, res) => {
-// 	console.log(req.body);
-// 	console.log(req.query);
-// 	console.log(req.params);
-// 	console.log(googleClient);
-// });
 
 export default router;

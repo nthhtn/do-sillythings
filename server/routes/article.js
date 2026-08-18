@@ -1,10 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import path from 'path';
 import bluebird from 'bluebird';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
+import { put } from '@vercel/blob';
 
 import Article from '../models/Article'
 import Tag from '../models/Tag';
@@ -12,46 +10,36 @@ import Category from '../models/Category';
 import { encrypt, decrypt, truncateEncrypted } from '../helpers/encryption';
 import { encryptId, isLoggedIn } from '../helpers/middleware';
 
-const UPLOAD_FOLDER = `${__dirname}/../../uploads`;
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 4 * 1024 * 1024 }
+});
 
 const router = express.Router();
 
 router.route('/')
 	.post(
 		(req, res, next) => isLoggedIn(req, res, next),
-		multer({
-			storage: multer.diskStorage({
-				destination: path.resolve(UPLOAD_FOLDER, 'img/tmp'),
-				filename: (req, file, callback) => {
-					const imageId = mongoose.Types.ObjectId();
-					const filename = file.originalname;
-					const ext = filename.split('.').pop();
-					return callback(null, `${imageId}.${ext}`);
-				}
-			})
-		}).single('file'),
+		upload.single('file'),
 		async (req, res) => {
 			const { title, content, categoryId, tags } = req.body;
-			const id = mongoose.Types.ObjectId();
-			const encryptedId = truncateEncrypted(encrypt(id.toString()));
+			const id = mongoose.isValidObjectId(req.body._id) ? mongoose.Types.ObjectId(req.body._id) : mongoose.Types.ObjectId();
 
 			// UPLOAD COVER IMAGE
 
-			const filename = req.file.filename;
-			const ext = filename.split('.').pop();
-			const encrypted_filename = truncateEncrypted(encrypt(filename + Date.now().toString())) + '.' + ext;
+			const ext = req.file.originalname.split('.').pop();
+			const encrypted_filename = truncateEncrypted(encrypt(req.file.originalname + Date.now().toString())) + '.' + ext;
 
-			const oldpath = path.resolve(UPLOAD_FOLDER, 'img/tmp', req.file.filename);
-			const newpath = path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover/${encrypted_filename}`);
-
-			mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover`));
-			fs.renameSync(oldpath, newpath);
+			const blob = await put(`article/${id}/cover/${encrypted_filename}`, req.file.buffer, {
+				access: 'public',
+				contentType: req.file.mimetype
+			});
 
 			const fields = {
 				_id: id,
 				title,
 				content,
-				coverImg: `/uploads/img/articles/${encryptedId}/cover/${encrypted_filename}`,
+				coverImg: blob.url,
 				categoryId,
 				authorId: req.user._id
 			};
@@ -134,6 +122,23 @@ router.route('/search')
 	});
 
 
+router.route('/upload-image')
+	.post(
+		(req, res, next) => isLoggedIn(req, res, next),
+		upload.single('file'),
+		async (req, res) => {
+			if (!mongoose.isValidObjectId(req.body.article_id)) {
+				return res.status(400).json({ success: false, error: 'Missing or invalid article_id' });
+			}
+			const ext = req.file.originalname.split('.').pop();
+			const encrypted_filename = truncateEncrypted(encrypt(req.file.originalname + Date.now().toString())) + '.' + ext;
+			const blob = await put(`article/${req.body.article_id}/content/${encrypted_filename}`, req.file.buffer, {
+				access: 'public',
+				contentType: req.file.mimetype
+			});
+			return res.json({ success: true, url: blob.url });
+		});
+
 router.route('/:id')
 	.get(
 		// (req, res, next) => encryptId(req, res, next),
@@ -143,17 +148,7 @@ router.route('/:id')
 		})
 	.put(
 		(req, res, next) => isLoggedIn(req, res, next),
-		multer({
-			storage: multer.diskStorage({
-				destination: path.resolve(UPLOAD_FOLDER, 'img/tmp'),
-				filename: (req, file, callback) => {
-					const imageId = mongoose.Types.ObjectId();
-					const filename = file.originalname;
-					const ext = filename.split('.').pop();
-					return callback(null, `${imageId}.${ext}`);
-				}
-			})
-		}).single('file'),
+		upload.single('file'),
 		async (req, res) => {
 			const tags = !Array.isArray(req.body.tags) ? JSON.parse(req.body.tags) : req.body.tags;
 			// const objectId = decrypt(req.params.id);
@@ -163,8 +158,7 @@ router.route('/:id')
 			const removeTags = article.tags.filter((tag) => !tags.includes(tag.tagValue));
 			const conditions = { tagValue: { $in: removeTags.map((tag) => (tag.tagValue)) } };
 			const options = { $pull: { articles: { $in: [mongoose.Types.ObjectId(objectId)] } } };
-			const removed = await Tag.updateMany(conditions, options);
-			// console.log(removed);
+			await Tag.updateMany(conditions, options);
 			let addTags = [];
 			await bluebird.map(tags, async (tag) => {
 				const newTag = await Tag.findOneAndUpdate({ tagValue: tag }, { $addToSet: { articles: objectId } }, { upsert: true, new: true });
@@ -174,18 +168,15 @@ router.route('/:id')
 			let data = { ...req.body, tags: addTags.map((item) => (item._id)) };
 			// UPLOAD COVER IMAGE
 			if (req.file) {
-				const encryptedId = truncateEncrypted(encrypt(objectId));
-				const filename = req.file.filename;
-				const ext = filename.split('.').pop();
-				const encrypted_filename = truncateEncrypted(encrypt(filename + Date.now().toString())) + '.' + ext;
+				const ext = req.file.originalname.split('.').pop();
+				const encrypted_filename = truncateEncrypted(encrypt(req.file.originalname + Date.now().toString())) + '.' + ext;
 
-				const oldpath = path.resolve(UPLOAD_FOLDER, 'img/tmp', req.file.filename);
-				const newpath = path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover/${encrypted_filename}`);
+				const blob = await put(`article/${objectId}/cover/${encrypted_filename}`, req.file.buffer, {
+					access: 'public',
+					contentType: req.file.mimetype
+				});
 
-				mkdirp.sync(path.resolve(UPLOAD_FOLDER, `img/articles/${encryptedId}/cover`));
-				fs.renameSync(oldpath, newpath);
-
-				data.coverImg = `/uploads/img/articles/${encryptedId}/cover/${encrypted_filename}`;
+				data.coverImg = blob.url;
 			}
 
 			article = await Article.findByIdAndUpdate(article._id, data, { new: true })
