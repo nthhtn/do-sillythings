@@ -8,6 +8,7 @@
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-react": "^7.14.5",
     "@babel/register": "^7.15.3",
+    "@babel/runtime": "^7.29.7",
     "@google-cloud/local-auth": "^2.1.0",
     "@reduxjs/toolkit": "^2.0.0",
     "@tinymce/tinymce-react": "^4.3.0",
@@ -56,11 +57,16 @@
   "main": "bootstrapper.js",
   "scripts": {
     "start": "nodemon bootstrapper.js",
-    "build": "webpack --config webpack.config.js",
+    "build:client": "webpack --config webpack.config.js",
+    "build:server": "babel app.js --out-file .build-server/app.js && babel server --out-dir .build-server/server --copy-files && babel config --out-dir .build-server/config --copy-files",
+    "build": "npm run build:client && npm run build:server",
     "vercel-build": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@babel/cli": "^7.29.7"
+  }
 }

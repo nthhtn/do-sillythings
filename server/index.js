@@ -8,7 +8,7 @@ import UnauthenticatedRouter from "./routes/unauthenticated";
 
 // require('./helpers/google');
 
-const VIEW_FOLDER = `${__dirname}/../static/views`;
+const VIEW_FOLDER = path.join(process.cwd(), 'static/views');
 
 module.exports = (app) => {
 	app.use("/api/categories", CategoryRouter);

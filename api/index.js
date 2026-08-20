@@ -1,4 +1,3 @@
 'use strict';
 
-require('@babel/register');
-module.exports = require('../app');
+module.exports = require('../.build-server/app.js');

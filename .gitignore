@@ -2,9 +2,13 @@ node_modules/
 yarn.lock
 yarn-error.log
 dist/
+.build-server/
 uploads/
 .env
 .env*.local
 .claude/
 .vercel/
 .DS_Store
+.vercel
+.env*
+static/img/wedding/slide.mp4

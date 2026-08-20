@@ -3,10 +3,9 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import webpack from 'webpack';
 import passport from 'passport';
+import path from 'path';
 
-import webpack_config from './webpack.config';
 import { MONGODB_URL } from './config/mongodb';
 import { APP_PORT, NODE_ENV } from './config/app';
 import { SESSION_SECRET } from './config/secret';
@@ -14,16 +13,20 @@ import { connectToDatabase } from './server/db';
 
 const isProd = NODE_ENV === 'production';
 
+// process.cwd() (not __dirname) so this still resolves correctly once app.js
+// is pre-compiled into .build-server/ and no longer lives at the project root.
+const PROJECT_ROOT = process.cwd();
+
 const app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/assets', express.static(`${__dirname}/static`));
-app.use('/favicon.ico', express.static(`${__dirname}/static/img/favicon.ico`));
+app.use('/assets', express.static(path.join(PROJECT_ROOT, 'static')));
+app.use('/favicon.ico', express.static(path.join(PROJECT_ROOT, 'static/img/favicon.ico')));
 
 if (!isProd) {
-	app.use('/uploads', express.static(`${__dirname}/uploads`));
+	app.use('/uploads', express.static(path.join(PROJECT_ROOT, 'uploads')));
 }
 
 app.use(session({
@@ -46,8 +49,10 @@ passport.deserializeUser((user, done) => {
 app.use(morgan('dev'));
 
 if (isProd) {
-	app.use('/static', express.static(`${__dirname}/dist`));
+	app.use('/static', express.static(path.join(PROJECT_ROOT, 'dist')));
 } else {
+	const webpack = require('webpack');
+	const webpack_config = require('./webpack.config');
 	const compiler = webpack(webpack_config);
 	app.use(require('webpack-dev-middleware')(compiler, {
 		publicPath: webpack_config.output.publicPath

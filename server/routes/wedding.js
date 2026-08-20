@@ -8,8 +8,8 @@ import WeddingAttendance from "../models/WeddingAttendance";
 // import { googleClient } from "../helpers/google";
 
 const router = express.Router();
-const VIEW_FOLDER = `${__dirname}/../../static/views`;
-const GALLERY_FOLDER = `${__dirname}/../../static/img/wedding/gallery/compressed`;
+const VIEW_FOLDER = path.join(process.cwd(), 'static/views');
+const GALLERY_FOLDER = path.join(process.cwd(), 'static/img/wedding/gallery/compressed');
 const GALLERY_URL_PREFIX = "/assets/img/wedding/gallery/compressed";
 
 const WEDDING_VIDEO_BLOB_PATHNAME = "wedding/video/slide.mp4";
