@@ -6,15 +6,18 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { listArticles } from '../actions/article';
 import { getBriefHtmlContent } from '../helpers';
+import Loader from './Loader';
 
 export default function Article() {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const article = useSelector((state) => state.article);
 	const [activePage, setActivePage] = useState(1);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		dispatch(listArticles());
+		setLoading(true);
+		dispatch(listArticles()).then(() => setLoading(false));
 	}, []);
 
 	function onRowClick(row) {
@@ -22,8 +25,10 @@ export default function Article() {
 	}
 
 	async function onPageChange(page) {
-		dispatch(listArticles(page, 10));
+		setLoading(true);
+		await dispatch(listArticles(page, 10));
 		setActivePage(page);
+		setLoading(false);
 	}
 
 	const list = article.list.map((item) => ({
@@ -51,47 +56,51 @@ export default function Article() {
 						<Link type="button" className="btn btn-success mr-1 mb-3" to='/dashboard/articles/new'>
 							<i className="fa fa-fw fa-plus mr-1"></i> Write New Article
 						</Link>
-						<BootstrapTable data={list} hover options={options} bodyStyle={{ cursor: 'pointer' }}>
-							<TableHeaderColumn dataField='_id' isKey={true} hidden></TableHeaderColumn>
-							<TableHeaderColumn dataField='title' columnClassName="font-w600" width="20%"
-								tdStyle={{
-									color: '#5c80d1',
-									whiteSpace: 'nowrap',
-									textOverflow: 'ellipsis',
-									overflow: 'hidden',
-									maxWidth: 0
-								}}>
-								Title
-							</TableHeaderColumn>
-							<TableHeaderColumn dataField='content' width="30%" columnClassName="article-brief"
-								tdStyle={{
-									whiteSpace: 'nowrap',
-									textOverflow: 'ellipsis',
-									overflow: 'hidden',
-									maxWidth: 0
-								}}>
-								Brief Content
-							</TableHeaderColumn>
-							<TableHeaderColumn width="20%" columnClassName="article-category" dataField='categoryId' dataFormat={showCategoryDisplayName}
-								tdStyle={{
-									whiteSpace: 'nowrap',
-									textOverflow: 'ellipsis',
-									overflow: 'hidden',
-									maxWidth: 0
-								}}>
-								Category
-							</TableHeaderColumn>
-							<TableHeaderColumn dataField='createdAt' width="30%">Created At</TableHeaderColumn>
-						</BootstrapTable>
-						<Pagination
-							itemClass="page-item"
-							linkClass="page-link"
-							activePage={activePage}
-							itemsCountPerPage={10}
-							totalItemsCount={article?.count}
-							pageRangeDisplayed={3}
-							onChange={onPageChange}
-						/>
+						{loading ? <Loader /> : (
+							<>
+								<BootstrapTable data={list} hover options={options} bodyStyle={{ cursor: 'pointer' }}>
+									<TableHeaderColumn dataField='_id' isKey={true} hidden></TableHeaderColumn>
+									<TableHeaderColumn dataField='title' columnClassName="font-w600" width="20%"
+										tdStyle={{
+											color: '#5c80d1',
+											whiteSpace: 'nowrap',
+											textOverflow: 'ellipsis',
+											overflow: 'hidden',
+											maxWidth: 0
+										}}>
+										Title
+									</TableHeaderColumn>
+									<TableHeaderColumn dataField='content' width="30%" columnClassName="article-brief"
+										tdStyle={{
+											whiteSpace: 'nowrap',
+											textOverflow: 'ellipsis',
+											overflow: 'hidden',
+											maxWidth: 0
+										}}>
+										Brief Content
+									</TableHeaderColumn>
+									<TableHeaderColumn width="20%" columnClassName="article-category" dataField='categoryId' dataFormat={showCategoryDisplayName}
+										tdStyle={{
+											whiteSpace: 'nowrap',
+											textOverflow: 'ellipsis',
+											overflow: 'hidden',
+											maxWidth: 0
+										}}>
+										Category
+									</TableHeaderColumn>
+									<TableHeaderColumn dataField='createdAt' width="30%">Created At</TableHeaderColumn>
+								</BootstrapTable>
+								<Pagination
+									itemClass="page-item"
+									linkClass="page-link"
+									activePage={activePage}
+									itemsCountPerPage={10}
+									totalItemsCount={article?.count}
+									pageRangeDisplayed={3}
+									onChange={onPageChange}
+								/>
+							</>
+						)}
 					</div>
 				</div>
 			</div>

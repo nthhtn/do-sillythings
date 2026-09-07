@@ -5,6 +5,7 @@ import qs from 'qs';
 
 import '../style/Sidebar.css';
 import { listCategories } from '../actions/category';
+import Loader from './Loader';
 
 export default function Sidebar() {
 	const dispatch = useDispatch();
@@ -16,12 +17,15 @@ export default function Sidebar() {
 
 	const [selected, setSelected] = useState(initialCategory);
 	const [keyword, setKeyword] = useState(query.keyword || '');
+	const [loading, setLoading] = useState(true);
 
 	const checklistRef = useRef(null);
 
 	useEffect(() => {
+		setLoading(true);
 		dispatch(listCategories()).then(() => {
 			setSelected([]);
+			setLoading(false);
 		});
 	}, []);
 
@@ -79,13 +83,15 @@ export default function Sidebar() {
 					<div className="form-group" style={{ marginTop: '10px' }}>
 						<div id="category-checklist" className="dropdown-check-list" ref={checklistRef}>
 							<label className="anchor">{selectedCount === 0 ? "Select category" : `${selectedCount} selected`}</label>
-							<ul className="items">
-								{categories.map((item) => (
-									<li key={item._id} className="category-check" onClick={selectCategory} data-category={item._id}>
-										{item.displayName} <i className="fas fa-check category-checkicon" aria-hidden="true"></i>
-									</li>
-								))}
-							</ul>
+							{loading ? <Loader /> : (
+								<ul className="items">
+									{categories.map((item) => (
+										<li key={item._id} className="category-check" onClick={selectCategory} data-category={item._id}>
+											{item.displayName} <i className="fas fa-check category-checkicon" aria-hidden="true"></i>
+										</li>
+									))}
+								</ul>
+							)}
 						</div>
 					</div>
 					<div className="form-group" style={{ marginTop: '10px', left: '35%' }}>

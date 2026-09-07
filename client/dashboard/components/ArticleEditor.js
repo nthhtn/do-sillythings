@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 
 import { createArticle, updateArticle, getArticle } from '../actions/article';
 import { listCategories } from '../actions/category';
+import Loader from './Loader';
 
 function generateObjectId() {
 	const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
@@ -39,26 +40,42 @@ export default function ArticleEditor() {
 	const [tagOptions, setTagOptions] = useState([]);
 	const [tagSelected, setTagSelected] = useState([]);
 	const [error, setError] = useState('');
+	const [loading, setLoading] = useState(true);
+	const [editorLoading, setEditorLoading] = useState(true);
+	const [coverLoading, setCoverLoading] = useState(true);
 
 	useEffect(() => {
 		dispatch(listCategories()).then(() => {
 			if (!isNew) {
-				dispatch(getArticle(articleId)).then(() => {
-					const { current } = article;
+				dispatch(getArticle(articleId)).then((result) => {
+					// Read the article straight off the resolved dispatch, not the
+					// `article` selector closed over at mount — that value is a stale
+					// snapshot from before this fetch started, and using it here caused
+					// a previously-viewed article's data (esp. coverImg) to leak into
+					// this one whenever its own fetch resolved after this closure formed.
+					const current = result.article;
 					if (current) {
 						setTitle(current.title || '');
 						setCategoryId(current.categoryId || '0');
 						setCoverImg(current.coverImg || '');
+						setCoverLoading(!!current.coverImg);
 						setTagOptions(current.tags || []);
 						setTagSelected(current.tags || []);
+					} else {
+						setCoverLoading(false);
 					}
+					setLoading(false);
 				});
+			} else {
+				setCoverLoading(false);
+				setLoading(false);
 			}
 		});
 	}, []);
 
 	function previewCoverImg(e) {
 		if (e.target.files && e.target.files.length > 0) {
+			setCoverLoading(true);
 			setCoverImg(URL.createObjectURL(e.target.files[0]));
 			setFile(e.target.files[0]);
 		}
@@ -128,6 +145,9 @@ export default function ArticleEditor() {
 			<div className="content">
 				<div className="block">
 					<div className="block-content block-content-full">
+						{loading ? <Loader /> : (<>
+						{(editorLoading || coverLoading) && <Loader />}
+						<div style={(editorLoading || coverLoading) ? { display: 'none' } : undefined}>
 						<div className="row">
 							<div className="col-md-6">
 								<div className="form-group">
@@ -138,7 +158,7 @@ export default function ArticleEditor() {
 								<Editor
 									apiKey={process.env.TINYMCE_APIKEY}
 									initialValue={article.current?.content || ''}
-									onInit={(_, editor) => { editorRef.current = editor; }}
+									onInit={(_, editor) => { editorRef.current = editor; setEditorLoading(false); }}
 									init={{
 										selector: 'textarea#open-source-plugins',
 										plugins: 'preview paste importcss searchreplace autolink autosave directionality code visualblocks visualchars fullscreen image link media codesample table charmap hr nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
@@ -217,7 +237,8 @@ export default function ArticleEditor() {
 								</div>
 							</div>
 							<div className="col-md-6">
-								{coverImg && <img src={coverImg} style={{ maxWidth: '100%' }} />}
+								{coverImg && <img src={coverImg} style={{ maxWidth: '100%' }}
+								onLoad={() => setCoverLoading(false)} onError={() => setCoverLoading(false)} />}
 							</div>
 							<div className="form-group col-md-6">
 								{error && <label className="d-block" style={{ color: 'red' }}>{error}</label>}
@@ -231,6 +252,8 @@ export default function ArticleEditor() {
 						<button type="button" className="btn btn-secondary mr-1 mb-3" onClick={backToArticleTable}>
 							<i className="fa fa-stop-circle mr-1"></i> Cancel
 						</button>
+						</div>
+						</>)}
 					</div>
 				</div>
 			</div>

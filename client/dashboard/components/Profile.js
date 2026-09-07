@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
 import { getMyProfile, updateMyProfile } from '../actions/user';
+import Loader from './Loader';
 
 export default function Profile() {
 	const dispatch = useDispatch();
@@ -20,6 +21,7 @@ export default function Profile() {
 	const [newpass, setNewpass] = useState('');
 	const [oldpass, setOldpass] = useState('');
 	const [error, setError] = useState('');
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		dispatch(getMyProfile()).then(() => {
@@ -30,6 +32,7 @@ export default function Profile() {
 				setBrief(me.brief || '');
 				setAvatar(me.avatar || '');
 			}
+			setLoading(false);
 		});
 	}, []);
 
@@ -102,6 +105,7 @@ export default function Profile() {
 			<div className="content">
 				<div className="block">
 					<div className="block-content">
+						{loading ? <Loader /> : (<>
 						<div className="row">
 							<div className="col-md-6">
 								<div className="form-group">
@@ -147,6 +151,7 @@ export default function Profile() {
 						<button type="button" className="btn btn-secondary mr-1 mb-3" onClick={backToArticleTable}>
 							<i className="fa fa-stop-circle mr-1"></i> Cancel
 						</button>
+						</>)}
 					</div>
 				</div>
 			</div>
