@@ -64,7 +64,8 @@ export default function ArticleEditor() {
 						setTagOptions(current.tags || []);
 						setTagSelected(current.tags || []);
 					} else {
-						setCoverLoading(false);
+						// Not found, or not the author: don't show an editor for it.
+						return navigate('/dashboard/articles');
 					}
 					setLoading(false);
 				});
@@ -101,7 +102,11 @@ export default function ArticleEditor() {
 			return setError('Missing required field(s)');
 		}
 		setError('');
-		await dispatch(updateArticle(articleId, { title, content, file, categoryId, tags: tagSelected }));
+		try {
+			await dispatch(updateArticle(articleId, { title, content, file, categoryId, tags: tagSelected }));
+		} catch (err) {
+			return Swal.fire({ title: err.message, text: 'Please try again!', icon: 'error', confirmButtonText: 'OK' });
+		}
 		navigate('/dashboard/articles');
 	}
 

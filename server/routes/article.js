@@ -17,6 +17,25 @@ const upload = multer({
 
 const router = express.Router();
 
+// Loads the article and verifies the session user authored it. Sends the
+// error response itself and returns null when the request must stop.
+async function findOwnedArticle(req, res) {
+	if (!mongoose.isValidObjectId(req.params.id)) {
+		res.status(404).json({ success: false, error: 'Article not found' });
+		return null;
+	}
+	const article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
+	if (!article) {
+		res.status(404).json({ success: false, error: 'Article not found' });
+		return null;
+	}
+	if (!article.authorId || !article.authorId.equals(req.user._id)) {
+		res.status(403).json({ success: false, error: 'You can only modify your own articles' });
+		return null;
+	}
+	return article;
+}
+
 router.route('/')
 	.post(
 		(req, res, next) => isLoggedIn(req, res, next),
@@ -64,12 +83,19 @@ router.route('/')
 		if (req.query.categoryId) {
 			filter_options.categoryId = req.query.categoryId
 		}
+		// Dashboard listing: only the current user's own articles.
+		if (req.query.mine === 'true') {
+			if (!req.isAuthenticated()) {
+				return res.status(401).json({ success: false, error: 'Invalid session' });
+			}
+			filter_options.authorId = req.user._id;
+		}
 		const result = await Article.find(filter_options).sort({ createdAt: -1 })
 			.skip((page - 1) * limit).limit(limit)
 			.populate({ path: 'authorId', select: ['fullName', 'avatar'] })
 			.populate({ path: 'categoryId', select: 'displayName' })
 			.exec();
-		const count = await Article.countDocuments({});
+		const count = await Article.countDocuments(filter_options);
 		return res.json({ success: true, result, count });
 	});
 
@@ -143,6 +169,14 @@ router.route('/:id')
 	.get(
 		// (req, res, next) => encryptId(req, res, next),
 		async (req, res) => {
+			// Dashboard (editor) fetch: only the author may load the article.
+			if (req.query.mine === 'true') {
+				if (!req.isAuthenticated()) {
+					return res.status(401).json({ success: false, error: 'Invalid session' });
+				}
+				const owned = await findOwnedArticle(req, res);
+				return owned && res.json({ success: true, result: owned });
+			}
 			const article = await Article.findOne({ _id: req.params.id }).populate({ path: 'tags', select: 'tagValue' }).exec();
 			return res.json({ success: true, result: article });
 		})
@@ -153,7 +187,8 @@ router.route('/:id')
 			const tags = !Array.isArray(req.body.tags) ? JSON.parse(req.body.tags) : req.body.tags;
 			// const objectId = decrypt(req.params.id);
 			const objectId = req.params.id;
-			let article = await Article.findOne({ _id: objectId }).populate({ path: 'tags', select: 'tagValue' }).exec();
+			let article = await findOwnedArticle(req, res);
+			if (!article) return;
 			// HANDLE TAGS
 			const removeTags = article.tags.filter((tag) => !tags.includes(tag.tagValue));
 			const conditions = { tagValue: { $in: removeTags.map((tag) => (tag.tagValue)) } };
@@ -165,7 +200,9 @@ router.route('/:id')
 				addTags.push(newTag);
 			});
 
-			let data = { ...req.body, tags: addTags.map((item) => (item._id)) };
+			// Whitelist editable fields so authorId etc. can't be overwritten from the client.
+			const { title, content, categoryId } = req.body;
+			let data = { title, content, categoryId, tags: addTags.map((item) => (item._id)) };
 			// UPLOAD COVER IMAGE
 			if (req.file) {
 				const ext = req.file.originalname.split('.').pop();
@@ -186,8 +223,14 @@ router.route('/:id')
 
 			return res.json({ success: true, result: article });
 		})
-	.delete(async (req, res) => {
-		// const objectId = decrypt(req.params.id);
-	});
+	.delete(
+		(req, res, next) => isLoggedIn(req, res, next),
+		async (req, res) => {
+			const article = await findOwnedArticle(req, res);
+			if (!article) return;
+			await Tag.updateMany({ articles: article._id }, { $pull: { articles: article._id } });
+			await Article.deleteOne({ _id: article._id });
+			return res.json({ success: true });
+		});
 
 export default router;

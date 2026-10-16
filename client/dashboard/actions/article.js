@@ -4,7 +4,7 @@ function listArticlesSuccess(list, page, count) {
 
 export function listArticles(page = 1, limit = 10) {
 	return async (dispatch) => {
-		const response = await fetch(`/api/articles?page=${page}&limit=${limit}`, { credentials: 'same-origin' });
+		const response = await fetch(`/api/articles?mine=true&page=${page}&limit=${limit}`, { credentials: 'same-origin' });
 		const responseJson = await response.json();
 		return dispatch(listArticlesSuccess(responseJson.result, page, responseJson.count));
 	};
@@ -36,7 +36,7 @@ function getArticleSuccess(article) {
 
 export function getArticle(id) {
 	return async (dispatch) => {
-		const response = await fetch(`/api/articles/${id}`, { credentials: 'same-origin' });
+		const response = await fetch(`/api/articles/${id}?mine=true`, { credentials: 'same-origin' });
 		const responseJson = await response.json();
 		return dispatch(getArticleSuccess(responseJson.result));
 	};
@@ -66,6 +66,7 @@ export function updateArticle(id, article) {
 		}
 		const response = await fetch(`/api/articles/${id}`, options);
 		const responseJson = await response.json();
+		if (!responseJson.success) throw new Error(responseJson.error || 'Update failed');
 		return dispatch(updateArticleSuccess(responseJson.result));
 	};
 };
@@ -82,6 +83,7 @@ export function deleteArticle(id) {
 			headers: { 'Content-Type': 'application/json' }
 		});
 		const responseJson = await response.json();
+		if (!responseJson.success) throw new Error(responseJson.error || 'Delete failed');
 		return dispatch(deleteArticleSuccess(id));
 	};
 };
