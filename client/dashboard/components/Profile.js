@@ -2,7 +2,7 @@ import 'sweetalert2/dist/sweetalert2.css';
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 
 import { getMyProfile, updateMyProfile } from '../actions/user';
@@ -11,7 +11,6 @@ import Loader from './Loader';
 export default function Profile() {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
-	const user = useSelector((state) => state.user);
 
 	const [avatar, setAvatar] = useState('');
 	const [file, setFile] = useState(null);
@@ -24,16 +23,16 @@ export default function Profile() {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		dispatch(getMyProfile()).then(() => {
-			const { me } = user;
+		// Read from the dispatched action: store state captured in this closure
+		// is pre-fetch and never sees the loaded profile.
+		dispatch(getMyProfile()).then(({ result: me }) => {
 			if (me) {
 				setFullName(me.fullName || '');
 				setEmail(me.email || '');
 				setBrief(me.brief || '');
 				setAvatar(me.avatar || '');
 			}
-			setLoading(false);
-		});
+		}).finally(() => setLoading(false));
 	}, []);
 
 	function previewAvatar(e) {
@@ -58,8 +57,7 @@ export default function Profile() {
 			profile.file = file;
 		}
 		setError('');
-		await dispatch(updateMyProfile(profile));
-		const { error: userError } = user;
+		const { error: userError } = await dispatch(updateMyProfile(profile));
 		if (userError) {
 			Swal.fire({
 				title: userError,
