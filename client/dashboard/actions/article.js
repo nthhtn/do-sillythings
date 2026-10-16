@@ -42,6 +42,10 @@ export function getArticle(id) {
 	};
 };
 
+export function clearArticle() {
+	return { type: 'CLEAR_ARTICLE' };
+};
+
 function updateArticleSuccess(article) {
 	return { type: 'UPDATE_ARTICLE', article };
 };

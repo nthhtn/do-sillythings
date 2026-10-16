@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
-import { createArticle, updateArticle, getArticle } from '../actions/article';
+import { createArticle, updateArticle, getArticle, clearArticle } from '../actions/article';
 import { listCategories } from '../actions/category';
 import Loader from './Loader';
 
@@ -27,13 +27,13 @@ export default function ArticleEditor() {
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
-	const article = useSelector((state) => state.article);
 	const category = useSelector((state) => state.category);
 
 	const editorRef = useRef(null);
 	const tagRef = useRef(null);
 
 	const [title, setTitle] = useState('');
+	const [initialContent, setInitialContent] = useState('');
 	const [categoryId, setCategoryId] = useState('0');
 	const [coverImg, setCoverImg] = useState('');
 	const [file, setFile] = useState(null);
@@ -45,6 +45,7 @@ export default function ArticleEditor() {
 	const [coverLoading, setCoverLoading] = useState(true);
 
 	useEffect(() => {
+		if (isNew) dispatch(clearArticle());
 		dispatch(listCategories()).then(() => {
 			if (!isNew) {
 				dispatch(getArticle(articleId)).then((result) => {
@@ -56,6 +57,7 @@ export default function ArticleEditor() {
 					const current = result.article;
 					if (current) {
 						setTitle(current.title || '');
+						setInitialContent(current.content || '');
 						setCategoryId(current.categoryId || '0');
 						setCoverImg(current.coverImg || '');
 						setCoverLoading(!!current.coverImg);
@@ -71,6 +73,7 @@ export default function ArticleEditor() {
 				setLoading(false);
 			}
 		});
+		return () => { dispatch(clearArticle()); };
 	}, []);
 
 	function previewCoverImg(e) {
@@ -138,7 +141,7 @@ export default function ArticleEditor() {
 			<div className="bg-body-light">
 				<div className="content content-full">
 					<div className="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-						<h1 className="flex-sm-fill h3 my-2">Write a new article</h1>
+						<h1 className="flex-sm-fill h3 my-2">{isNew ? 'Write a new article' : 'Edit an article'}</h1>
 					</div>
 				</div>
 			</div>
@@ -157,7 +160,7 @@ export default function ArticleEditor() {
 								</div>
 								<Editor
 									apiKey={process.env.TINYMCE_APIKEY}
-									initialValue={article.current?.content || ''}
+									initialValue={initialContent}
 									onInit={(_, editor) => { editorRef.current = editor; setEditorLoading(false); }}
 									init={{
 										selector: 'textarea#open-source-plugins',

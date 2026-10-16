@@ -8,6 +8,7 @@ export default function (state = { list, current, page, count }, action) {
 		case 'CREATE_ARTICLE': return { ...state, list: [action.article, ...state.list] };
 		case 'LIST_ARTICLES': return { ...state, list: action.list, page: action.page, count: action.count };
 		case 'GET_ARTICLE': return { ...state, current: action.article };
+		case 'CLEAR_ARTICLE': return { ...state, current: null };
 		case 'UPDATE_ARTICLE': return {
 			...state,
 			list: state.list.map((item) => (item._id === action.article._id ? action.article : item))
